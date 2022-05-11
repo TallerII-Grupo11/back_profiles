@@ -2,7 +2,7 @@ from app.db.model.py_object_id import PyObjectId
 from pydantic import Field
 
 from pydantic.main import BaseModel
-from typing import List, Optional
+from typing import List
 from bson import ObjectId
 from app.db.model.subscription import Subscription
 from app.db.model.genre import Genre

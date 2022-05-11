@@ -32,7 +32,9 @@ async def show_profile(user_id: str, db: DatabaseManager = Depends(get_database)
     profile = await manager.get_profile(user_id=user_id)
     if profile is not None:
         return profile
-    raise HTTPException(status_code=404, detail=f"Listener's Profile {user_id} not found")
+    raise HTTPException(status_code=404,
+                        detail=f"Listener's Profile {user_id} not found"
+                        )
 
 
 @router.put(
@@ -100,7 +102,9 @@ async def update_profile(
                             content={"message": f"Success update of profile {user_id}"}
                             )
 
-    raise HTTPException(status_code=404, detail=f"Listener's Profile {user_id} not found")
+    raise HTTPException(status_code=404,
+                        detail=f"Listener's Profile {user_id} not found"
+                        )
 
 
 @router.put(

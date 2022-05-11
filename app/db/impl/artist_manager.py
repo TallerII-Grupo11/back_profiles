@@ -3,7 +3,6 @@ import logging
 from motor.motor_asyncio import AsyncIOMotorDatabase
 
 from app.db.model.artist import ArtistModel
-from app.db.model.subscription import Subscription
 from fastapi.encoders import jsonable_encoder
 
 
