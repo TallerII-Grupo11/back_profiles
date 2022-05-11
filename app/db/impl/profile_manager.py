@@ -1,11 +1,9 @@
-from typing import List
 import logging
 
 from motor.motor_asyncio import AsyncIOMotorDatabase
 
-from app.db.model.profile import ProfileModel, UpdateProfileModel
+from app.db.model.profile import ProfileModel
 from app.db.model.subscription import Subscription
-from fastapi import Body
 from fastapi.encoders import jsonable_encoder
 
 
@@ -36,12 +34,11 @@ class ProfileManager():
             logging.error(f"[CREATE PLAYLIST] Fail with msg: {e}")
             return False
 
-
     async def update_subcription(self, user_id: str, subscription: str) -> bool:
         try:
             await self.db["profiles"]\
                 .update_one(
-                            {"user_id": user_id}, 
+                            {"user_id": user_id},
                             {"$set": {"subscription": subscription}}
                             )
             return True
@@ -52,9 +49,9 @@ class ProfileManager():
     async def follow_artist(self, user_id: str, artist_id: str) -> bool:
         try:
             await self.db["profiles"]\
-            .update_one({"user_id": user_id},
-                        {"$$addToSet": {"follow_artists": artist_id}}
-                        )
+                  .update_one({"user_id": user_id},
+                              {"$$addToSet": {"follow_artists": artist_id}}
+                              )
             return True
         except Exception as e:
             logging.error(f"[FOLLOW ARTIST] Fail with msg: {e}")

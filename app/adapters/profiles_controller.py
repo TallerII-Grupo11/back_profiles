@@ -1,8 +1,8 @@
-from fastapi import APIRouter, status, Depends, Body, HTTPException
+from fastapi import APIRouter, status, Depends, HTTPException
 from fastapi.responses import JSONResponse
 from app.db import DatabaseManager, get_database
 from app.db.impl.profile_manager import ProfileManager
-from app.db.model.profile import ProfileModel, UpdateProfileModel
+from app.db.model.profile import ProfileModel
 from typing import List
 
 router = APIRouter(tags=["profiles"])
@@ -97,12 +97,11 @@ async def update_profile(
                                 )
     if msg:
         return JSONResponse(
-                            status_code=status.HTTP_201_CREATED, 
+                            status_code=status.HTTP_201_CREATED,
                             content={"message": f"Success update of profile {user_id}"}
                             )
 
     raise HTTPException(status_code=404, detail=f"Profile for user {user_id} not found")
-
 
 
 @router.put(
@@ -123,4 +122,3 @@ async def update_playlist(
                             )
     raise JSONResponse(status_code=404,
                        content={"message": f"Profile for user {user_id} not found"})
-
