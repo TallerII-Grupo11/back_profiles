@@ -1,0 +1,4 @@
+__pycache__/
+app_songs.py
+.env
+.pytest_cache
