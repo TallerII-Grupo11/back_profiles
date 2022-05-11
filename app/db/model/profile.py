@@ -4,7 +4,6 @@ from pydantic import Field
 from pydantic.main import BaseModel
 from typing import List, Optional
 from bson import ObjectId
-from app.db.model.song import SongModel
 from app.db.model.subscription import Subscription
 from app.db.model.genre import Genre
 
@@ -14,7 +13,7 @@ class ProfileModel(BaseModel):
     user_id: str = Field(...)
     interests: List[Genre] = []
     subscription: Subscription = Subscription.free
-    own_playlists: List[str] = []
+    playlists: List[str] = []
     follow_artists: List[str] = []
     favorite_songs: List[str] = []
     favorite_albums: List[str] = []
@@ -26,13 +25,7 @@ class ProfileModel(BaseModel):
         json_encoders = {ObjectId: str}
         schema_extra = {
             "example": {
-                "interests": ["genre1", "genre2"],
-                "subscription": "free",
-                "playlists": ["id1", "id2"],
-                "follow_artists": ["id1"],
-                "favorite_songs": ["song1", "song2"],
-                "favorite_albums": [],
-                "favorite_playlists": ["id1"]
+                "user_id": "user_id"
             }
         }
 

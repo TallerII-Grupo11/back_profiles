@@ -15,7 +15,7 @@ class MongoManager(DatabaseManager):
             maxPoolSize=10,
             minPoolSize=10)
         # Multimedia is main_db
-        self.db = self.client.multimedia
+        self.db = self.client.profiles
         logging.info("Connected to MongoDB.")
 
     async def close_database_connection(self):

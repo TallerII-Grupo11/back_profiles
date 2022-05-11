@@ -4,12 +4,12 @@ from typing import List
 
 class Subscription(str, Enum):
     free = 'free'
+    normal = 'normal'
     premium = 'premium'
-    plus = 'plus'
 
     def get_allowed(subscription: str) -> List[str]:
-        if (subscription == "plus"):
-            return ["free", "premium", "plus"]
         if (subscription == "premium"):
-            return ["free", "premium"]
+            return ["free", "premium", "normal"]
+        if (subscription == "normal"):
+            return ["free", "normal"]
         return ["free"]

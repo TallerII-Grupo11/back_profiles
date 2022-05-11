@@ -18,5 +18,4 @@ class Settings(BaseSettings):
 
 @lru_cache()
 def get_settings():
-    print("get settings")
     return Settings()
