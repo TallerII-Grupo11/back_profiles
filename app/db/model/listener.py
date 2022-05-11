@@ -8,7 +8,7 @@ from app.db.model.subscription import Subscription
 from app.db.model.genre import Genre
 
 
-class ProfileModel(BaseModel):
+class ListenerModel(BaseModel):
     id: PyObjectId = Field(default_factory=PyObjectId, alias="_id")
     user_id: str = Field(...)
     interests: List[Genre] = []
@@ -26,30 +26,5 @@ class ProfileModel(BaseModel):
         schema_extra = {
             "example": {
                 "user_id": "user_id"
-            }
-        }
-
-
-class UpdateProfileModel(BaseModel):
-    interests: Optional[List[str]]
-    subscription: Optional[str]
-    playlists: Optional[List[str]]
-    follow_artists: Optional[List[str]]
-    favorite_songs: Optional[List[str]]
-    favorite_albums: Optional[List[str]]
-    favorite_playlists: Optional[List[str]]
-
-    class Config:
-        arbitrary_types_allowed = True
-        json_encoders = {ObjectId: str}
-        schema_extra = {
-            "example": {
-                "interests": ["genre1", "genre2"],
-                "subscription": "free",
-                "playlists": ["id1", "id2"],
-                "follow_artists": ["id1"],
-                "favorite_songs": ["song1", "song2"],
-                "favorite_albums": [],
-                "favorite_playlists": ["id1"]
             }
         }

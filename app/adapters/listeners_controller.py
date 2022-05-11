@@ -1,43 +1,43 @@
 from fastapi import APIRouter, status, Depends, HTTPException
 from fastapi.responses import JSONResponse
 from app.db import DatabaseManager, get_database
-from app.db.impl.profile_manager import ProfileManager
-from app.db.model.profile import ProfileModel
+from app.db.impl.listener_manager import ListenerManager
+from app.db.model.listener import ListenerModel
 
-router = APIRouter(tags=["profiles"])
+router = APIRouter(tags=["listeners"])
 
 
 @router.post(
-    "/profiles/{user_id}",
-    response_description="Add new profile",
-    response_model=ProfileModel
+    "/listeners/{user_id}",
+    response_description="Add new listener profile",
+    response_model=ListenerModel
 )
 async def create_profile(
     user_id: str,
     db: DatabaseManager = Depends(get_database)
 ):
-    manager = ProfileManager(db.db)
+    manager = ListenerManager(db.db)
     created_profile = await manager.add_profile(user_id)
     return JSONResponse(status_code=status.HTTP_201_CREATED, content=created_profile)
 
 
 @router.get(
-    "/profiles/{user_id}",
-    response_description="Get a single profile",
-    response_model=ProfileModel,
+    "/listeners/{user_id}",
+    response_description="Get a single listener profile",
+    response_model=ListenerModel,
     status_code=status.HTTP_200_OK,
 )
 async def show_profile(user_id: str, db: DatabaseManager = Depends(get_database)):
-    manager = ProfileManager(db.db)
+    manager = ListenerManager(db.db)
     profile = await manager.get_profile(user_id=user_id)
     if profile is not None:
         return profile
-    raise HTTPException(status_code=404, detail=f"Profile for user {user_id} not found")
+    raise HTTPException(status_code=404, detail=f"Listener's Profile {user_id} not found")
 
 
 @router.put(
-    "/profiles/{user_id}",
-    response_description="Update a profile",
+    "/listeners/{user_id}",
+    response_description="Update a listener's profile",
     status_code=status.HTTP_200_OK,
 )
 async def update_profile(
@@ -50,7 +50,7 @@ async def update_profile(
     interest: str = None,
     db: DatabaseManager = Depends(get_database)
 ):
-    manager = ProfileManager(db.db)
+    manager = ListenerManager(db.db)
     msg = False
     if subscription:
         msg = await manager.update_subcription(user_id=user_id,
@@ -100,12 +100,12 @@ async def update_profile(
                             content={"message": f"Success update of profile {user_id}"}
                             )
 
-    raise HTTPException(status_code=404, detail=f"Profile for user {user_id} not found")
+    raise HTTPException(status_code=404, detail=f"Listener's Profile {user_id} not found")
 
 
 @router.put(
-    "/profiles/{user_id}/playlist/{playlist_id}",
-    response_description="Create playlist",
+    "/listeners/{user_id}/playlist/{playlist_id}",
+    response_description="Create playlist for listener",
     status_code=status.HTTP_200_OK,
 )
 async def update_playlist(
@@ -113,11 +113,11 @@ async def update_playlist(
     playlist_id: str,
     db: DatabaseManager = Depends(get_database)
 ):
-    manager = ProfileManager(db.db)
+    manager = ListenerManager(db.db)
     playlist = await manager.create_playlist(user_id=user_id, playlist_id=playlist_id)
     if playlist:
         return JSONResponse(status_code=status.HTTP_200_OK,
                             content={"message": "Success add playlist"}
                             )
     raise JSONResponse(status_code=404,
-                       content={"message": f"Profile for user {user_id} not found"})
+                       content={"message": f"Listener's Profile {user_id} not found"})
