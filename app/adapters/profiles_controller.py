@@ -3,7 +3,6 @@ from fastapi.responses import JSONResponse
 from app.db import DatabaseManager, get_database
 from app.db.impl.profile_manager import ProfileManager
 from app.db.model.profile import ProfileModel
-from typing import List
 
 router = APIRouter(tags=["profiles"])
 
