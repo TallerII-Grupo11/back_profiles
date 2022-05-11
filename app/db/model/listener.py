@@ -5,13 +5,12 @@ from pydantic.main import BaseModel
 from typing import List
 from bson import ObjectId
 from app.db.model.subscription import Subscription
-from app.db.model.genre import Genre
 
 
 class ListenerModel(BaseModel):
     id: PyObjectId = Field(default_factory=PyObjectId, alias="_id")
     user_id: str = Field(...)
-    interests: List[Genre] = []
+    interests: List[str] = []
     subscription: Subscription = Subscription.free
     playlists: List[str] = []
     follow_artists: List[str] = []
