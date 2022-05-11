@@ -2,7 +2,8 @@ import uvicorn
 
 import logging.config
 
-from app.adapters import profiles_controller
+from app.adapters import listeners_controller
+from app.adapters import artists_controller
 from app.conf.config import Settings
 from fastapi import FastAPI
 from app.db import db
@@ -14,7 +15,8 @@ settings = Settings()
 
 app = FastAPI(version=settings.version, title=settings.title)
 
-app.include_router(profiles_controller.router)
+app.include_router(listeners_controller.router)
+app.include_router(artists_controller.router)
 
 
 @app.on_event("startup")
