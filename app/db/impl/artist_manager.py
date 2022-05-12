@@ -22,9 +22,10 @@ class ArtistManager():
         await self.db["artists"].insert_one(profile)
         return profile
 
-    async def update_artist(self,
-                            id: str,
-                            artist: UpdateArtistModel = Body(...)
+    async def update_artist(
+        self,
+        id: str,
+        artist: UpdateArtistModel = Body(...)
     ) -> bool:
         artist = {k: v for k, v in artist.dict().items() if v is not None}
 

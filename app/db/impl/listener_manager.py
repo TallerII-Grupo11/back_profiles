@@ -4,7 +4,6 @@ from motor.motor_asyncio import AsyncIOMotorDatabase
 from fastapi import Body
 
 from app.db.model.listener import ListenerModel, UpdateListenerModel
-from app.db.model.subscription import Subscription
 from fastapi.encoders import jsonable_encoder
 
 
@@ -23,7 +22,10 @@ class ListenerManager():
         await self.db["listeners"].insert_one(profile)
         return profile
 
-    async def update_profile(self, id: str, listener: UpdateListenerModel = Body(...)) -> bool:
+    async def update_profile(
+        self, id: str,
+        listener: UpdateListenerModel = Body(...)
+    ) -> bool:
         logging.info(f"[LISTENER] {listener}")
         listener = {k: v for k, v in listener.dict().items() if v is not None}
 
@@ -61,7 +63,6 @@ class ListenerManager():
             update = await self.create_playlist(id=id,
                                                 playlist_id=listener["my_playlist"]
                                                 )
-         
         return update
 
     async def create_playlist(self, id: str, playlist_id: str) -> bool:
