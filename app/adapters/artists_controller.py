@@ -1,8 +1,8 @@
-from fastapi import APIRouter, status, Depends, HTTPException
+from fastapi import APIRouter, status, Depends, HTTPException, Body
 from fastapi.responses import JSONResponse
 from app.db import DatabaseManager, get_database
 from app.db.impl.artist_manager import ArtistManager
-from app.db.model.artist import ArtistModel
+from app.db.model.artist import ArtistModel, UpdateArtistModel
 
 router = APIRouter(tags=["artists"])
 
@@ -36,34 +36,21 @@ async def show_profile(user_id: str, db: DatabaseManager = Depends(get_database)
 
 
 @router.put(
-    "/artists/{user_id}",
+    "/artists/{id}",
     response_description="Update a artist's profile",
     status_code=status.HTTP_200_OK,
 )
 async def update_profile(
-    user_id: str,
-    song_id: str = None,
-    album_id: str = None,
+    id: str,
+    artist: UpdateArtistModel = Body(...),
     db: DatabaseManager = Depends(get_database)
 ):
     manager = ArtistManager(db.db)
-    msg = False
-    if song_id:
-        msg = await manager.add_song(user_id=user_id, song_id=song_id)
-        if not msg:
-            return JSONResponse(status_code=404,
-                                content={"message": "Error adding song"}
-                                )
-    if album_id:
-        msg = await manager.add_album(user_id=user_id, album_id=album_id)
-        if not msg:
-            return JSONResponse(status_code=404,
-                                content={"message": "Error adding album"}
-                                )
-    if msg:
+    response = manager.update_artist(user_id=user_id, artist=artist)
+    if response:
         return JSONResponse(
-                            status_code=status.HTTP_201_CREATED,
-                            content={"message": f"Success update of profile {user_id}"}
+                            status_code=status.HTTP_200_OK,
+                            content={"message": f"Success update of profile {id}"}
                             )
 
-    raise HTTPException(status_code=404, detail=f"Artist's Profile {user_id} not found")
+    raise HTTPException(status_code=404, detail=f"Artist's Profile {id} not found")

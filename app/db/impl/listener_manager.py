@@ -1,8 +1,9 @@
 import logging
 
 from motor.motor_asyncio import AsyncIOMotorDatabase
+from fastapi import Body
 
-from app.db.model.listener import ListenerModel
+from app.db.model.listener import ListenerModel, UpdateListenerModel
 from app.db.model.subscription import Subscription
 from fastapi.encoders import jsonable_encoder
 
@@ -22,6 +23,40 @@ class ListenerManager():
         profile = jsonable_encoder(profile_model)
         await self.db["listeners"].insert_one(profile)
         return profile
+
+    async def update_profile(self, listener: UpdateListenerModel = Body(...)) -> bool:
+        listener = {k: v for k, v in listener.dict().items() if v is not None}
+
+        user_id = listener["user_id"]
+        if listener["subscription"]:
+            return await self.update_subcription(user_id=user_id,
+                                                 subscription=listener["subscription"]
+                                                 )
+        if listener["follow_artist"]:
+            return await self.follow_artist(user_id=user_id,
+                                            artist_id=listener["follow_artist"]
+                                            )
+        if listener["favorite_song"]:
+            return await self.add_favorite_song(user_id=user_id,
+                                                song_id=listener["favorite_song"]
+                                                )
+        if listener["favorite_album"]:
+            return await self.add_favorite_album(user_id=user_id,
+                                                 album_id=listener["favorite_album"]
+                                                 )
+        if listener["favorite_playlist"]:
+            return await self.add_favorite_playlist(user_id=user_id,
+                                                    playlist_id=listener["favorite_playlist"]
+                                                    )
+        if listener["interest"]:
+            return await self.add_interest(user_id=user_id,
+                                           interest=listener["interest"]
+                                           )
+        if listener["my_playlist"]:
+            return await self.create_playlist(user_id=user_id,
+                                              playlist_id=listener["my_playlist"]
+                                              )
+        return False
 
     async def create_playlist(self, user_id: str, playlist_id: str) -> bool:
         try:
