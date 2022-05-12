@@ -12,7 +12,7 @@ class ArtistModel(BaseModel):
     last_name: str = Field(...)
     email: str = Field(...)
     country: str = Field(...)
-    user_id: str = Field(...)
+    firebase_id: str = Field(...)
     songs: List[str] = []
     albums: List[str] = []
 
@@ -22,7 +22,7 @@ class ArtistModel(BaseModel):
         json_encoders = {ObjectId: str}
         schema_extra = {
             "example": {
-                "user_id": "user_id",
+                "firebase_id": "firebase_id",
                 "first_name": "",
                 "last_name": "",
                 "email": "email@gmail.com",
@@ -30,10 +30,10 @@ class ArtistModel(BaseModel):
             }
         }
 
+
 class UpdateArtistModel(BaseModel):
-    user_id: str
-    songs: Optional[str]
-    albums: Optional[str]
+    song: Optional[str]
+    album: Optional[str]
     email: Optional[str]
 
     class Config:
@@ -41,7 +41,6 @@ class UpdateArtistModel(BaseModel):
         json_encoders = {ObjectId: str}
         schema_extra = {
             "example": {
-                "user_id": "user_id",
                 "song": "id",
                 "album": "id",
                 "email": "email@gmail.com"

@@ -8,37 +8,37 @@ router = APIRouter(tags=["listeners"])
 
 
 @router.post(
-    "/listeners/{user_id}",
+    "/listeners",
     response_description="Add new listener profile",
     response_model=ListenerModel
 )
 async def create_profile(
-    user_id: str,
+    listener: ListenerModel = Body(...),
     db: DatabaseManager = Depends(get_database)
 ):
     manager = ListenerManager(db.db)
-    created_profile = await manager.add_profile(user_id)
+    created_profile = await manager.add_profile(listener)
     return JSONResponse(status_code=status.HTTP_201_CREATED, content=created_profile)
 
 
 @router.get(
-    "/listeners/{user_id}",
+    "/listeners/{id}",
     response_description="Get a single listener profile",
     response_model=ListenerModel,
     status_code=status.HTTP_200_OK,
 )
-async def show_profile(user_id: str, db: DatabaseManager = Depends(get_database)):
+async def show_profile(id: str, db: DatabaseManager = Depends(get_database)):
     manager = ListenerManager(db.db)
-    profile = await manager.get_profile(user_id=user_id)
+    profile = await manager.get_profile(id=id)
     if profile is not None:
         return profile
     raise HTTPException(status_code=404,
-                        detail=f"Listener's Profile {user_id} not found"
+                        detail=f"Listener's Profile {id} not found"
                         )
 
 
 @router.put(
-    "/listeners/{user_id}",
+    "/listeners/{id}",
     response_description="Update a listener's profile",
     status_code=status.HTTP_200_OK,
 )
@@ -48,7 +48,7 @@ async def update_profile(
     db: DatabaseManager = Depends(get_database)
 ):
     manager = ListenerManager(db.db)
-    response = manager.update_profile(listener=listener)
+    response = await manager.update_profile(id=id, listener=listener)
     if response:
         return JSONResponse(
                             status_code=status.HTTP_200_OK,

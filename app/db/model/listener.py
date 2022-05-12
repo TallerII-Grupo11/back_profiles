@@ -9,7 +9,7 @@ from app.db.model.subscription import Subscription
 
 class ListenerModel(BaseModel):
     id: PyObjectId = Field(default_factory=PyObjectId, alias="_id")
-    user_id: str = Field(...)
+    firebase_id: str = Field(...)
     first_name: str = Field(...)
     last_name: str = Field(...)
     email: str = Field(...)
@@ -28,7 +28,7 @@ class ListenerModel(BaseModel):
         json_encoders = {ObjectId: str}
         schema_extra = {
             "example": {
-                "user_id": "user_id",
+                "firebase_id": "firebase_id",
                 "first_name": "",
                 "last_name": "",
                 "email": "email@gmail.com",
@@ -37,16 +37,16 @@ class ListenerModel(BaseModel):
             }
         }
 
+
 class UpdateListenerModel(BaseModel):
-    user_id: str
     email: Optional[str]
-    interests: Optional[str]
+    interest: Optional[str]
     subscription: Optional[str]
-    playlists: Optional[str]
-    follow_artists: Optional[str]
-    favorite_songs: Optional[str]
-    favorite_albums: Optional[str]
-    favorite_playlists: Optional[str]
+    playlist: Optional[str]
+    follow_artist: Optional[str]
+    favorite_song: Optional[str]
+    favorite_album: Optional[str]
+    favorite_playlist: Optional[str]
 
     class Config:
         arbitrary_types_allowed = True
