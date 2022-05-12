@@ -1,6 +1,6 @@
 # back_profiles
 
-[![codecov](https://codecov.io/gh/TallerII-Grupo11/back_profiles/branch/main/graph/badge.svg?token=5CIK0SM2UN)](https://codecov.io/gh/TallerII-Grupo11/back_profiles)
+[![codecov](https://codecov.io/gh/TallerII-Grupo11/back_profiles/branch/main/graph/badge.svg?token=CeoOvqKi2B)](https://codecov.io/gh/TallerII-Grupo11/back_profiles)
 [![Linters](https://github.com/TallerII-Grupo11/back_profiles/actions/workflows/linter.yaml/badge.svg)](https://github.com/TallerII-Grupo11/back_profiles/actions/workflows/linter.yaml)
 [![Tests](https://github.com/TallerII-Grupo11/back_profiles/actions/workflows/test.yaml/badge.svg)](https://github.com/TallerII-Grupo11/back_profiles/actions/workflows/test.yaml)
 [![Deploy](https://github.com/TallerII-Grupo11/back_profiles/actions/workflows/deploy.yaml/badge.svg)](https://github.com/TallerII-Grupo11/back_profiles/actions/workflows/deploy.yaml)
