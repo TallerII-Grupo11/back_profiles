@@ -4,7 +4,6 @@ from pydantic import Field
 from pydantic.main import BaseModel
 from typing import List, Optional
 from bson import ObjectId
-from app.db.model.subscription import Subscription
 
 
 class ListenerModel(BaseModel):
