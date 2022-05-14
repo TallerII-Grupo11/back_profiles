@@ -46,11 +46,27 @@ async def update_profile(
     db: DatabaseManager = Depends(get_database)
 ):
     manager = ArtistManager(db.db)
-    response = await manager.update_artist(id=id, artist=artist)
-    if response:
-        return JSONResponse(
-                            status_code=status.HTTP_200_OK,
-                            content={"message": f"Success update of profile {id}"}
-                            )
+    try:
+        response = await manager.update_profile(id=id, profile=artist)
+        if response:
+            return response
+        raise HTTPException(status_code=404, detail=f"Artist {id} not found")
 
-    raise HTTPException(status_code=404, detail=f"Artist's Profile {id} not found")
+    except Exception as e:
+        raise HTTPException(status_code=404, detail=e)
+
+
+@router.delete(
+    "/artists/{id}",
+    response_description="Delete a profile artist",
+    include_in_schema=False,
+    status_code=status.HTTP_200_OK,
+)
+async def delete_profile(id: str, db: DatabaseManager = Depends(get_database)):
+    manager = ArtistManager(db.db)
+    delete_result = await manager.delete_profile(id)
+
+    if delete_result.deleted_count == 1:
+        return JSONResponse(status_code=status.HTTP_204_NO_CONTENT)
+
+    raise HTTPException(status_code=404, detail=f"Artist {id} not found")

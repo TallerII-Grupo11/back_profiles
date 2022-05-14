@@ -22,54 +22,21 @@ class ArtistManager():
         await self.db["artists"].insert_one(profile)
         return profile
 
-    async def update_artist(
+    async def delete_profile(self, id: str):
+        delete_result = await self.db["artists"].delete_one({"_id": id})
+        return delete_result
+
+    async def update_profile(
         self,
         id: str,
-        artist: UpdateArtistModel = Body(...)
-    ) -> bool:
-        artist = {k: v for k, v in artist.dict().items() if v is not None}
-
-        update = False
-        profile = await self.db["artists"].find_one({"_id": id})
-        if not profile:
-            return False
-        if "song" in artist:
-            update = await self.add_song(id=id, song_id=artist["song"])
-        if "album" in artist:
-            update = await self.add_album(id=id, album_id=artist["album"])
-        if "email" in artist:
-            update = await self.update_email(id=id, email=artist["email"])
-        return update
-
-    async def add_song(self, id: str, song_id: str) -> bool:
+        profile: UpdateArtistModel = Body(...)
+    ) -> ArtistModel:
         try:
-            await self.db["artists"]\
-                .update_one({"_id": id},
-                            {"$addToSet": {"songs": song_id}}
-                            )
-            return True
+            profile = {k: v for k, v in profile.dict().items() if v is not None}
+            await self.db["artists"].update_one({"_id": id}, {"$set": profile})
+            model = await self.get_profile(id)
+            return model
         except Exception as e:
-            logging.error(f"[ADD SONG] Fail with msg: {e}")
-            return False
-
-    async def add_album(self, id: str, album_id: str) -> bool:
-        try:
-            await self.db["artists"]\
-                .update_one({"_id": id},
-                            {"$addToSet": {"albums": album_id}}
-                            )
-            return True
-        except Exception as e:
-            logging.error(f"[ADD ALBUM] Fail with msg: {e}")
-            return False
-
-    async def update_email(self, id: str, email: str) -> bool:
-        try:
-            await self.db["artists"]\
-                .update_one({"_id": id},
-                            {"$set": {"email": email}}
-                            )
-            return True
-        except Exception as e:
-            logging.error(f"[UPDATE MAIL] Fail with msg: {e}")
-            return False
+            msg = f"[UPDATE_PROFILE] Profile: {profile} error: {e}"
+            logging.error(msg)
+            raise RuntimeError(msg)

@@ -8,11 +8,7 @@ from bson import ObjectId
 
 class ArtistModel(BaseModel):
     id: PyObjectId = Field(default_factory=PyObjectId, alias="_id")
-    first_name: str = Field(...)
-    last_name: str = Field(...)
-    email: str = Field(...)
-    country: str = Field(...)
-    firebase_id: str = Field(...)
+    user_id: str = Field(...)
     songs: List[str] = []
     albums: List[str] = []
 
@@ -22,27 +18,25 @@ class ArtistModel(BaseModel):
         json_encoders = {ObjectId: str}
         schema_extra = {
             "example": {
-                "firebase_id": "firebase_id",
-                "first_name": "",
-                "last_name": "",
-                "email": "email@gmail.com",
-                "country": "country"
+                "user_id": "user_id",
+                "songs": [],
+                "albums": []
             }
         }
 
 
 class UpdateArtistModel(BaseModel):
-    song: Optional[str]
-    album: Optional[str]
-    email: Optional[str]
+    user_id: Optional[str]
+    songs: Optional[List[str]]
+    albums: Optional[List[str]]
 
     class Config:
         arbitrary_types_allowed = True
         json_encoders = {ObjectId: str}
         schema_extra = {
             "example": {
-                "song": "id",
-                "album": "id",
-                "email": "email@gmail.com"
+                "user_id": "user_id",
+                "songs": [],
+                "albums": [],
             }
         }
