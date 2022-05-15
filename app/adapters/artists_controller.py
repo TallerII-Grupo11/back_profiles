@@ -20,6 +20,19 @@ async def create_profile(
     created_profile = await manager.add_profile(artist)
     return JSONResponse(status_code=status.HTTP_201_CREATED, content=created_profile)
 
+@router.get(
+    "/artists",
+    response_description="Get a single artist profile",
+    response_model=ArtistModel,
+    status_code=status.HTTP_200_OK,
+)
+async def show_profile(user_id: str,db: DatabaseManager = Depends(get_database)):
+    manager = ArtistManager(db.db)
+    profile = await manager.get_profile_by_user_id(user_id=user_id)
+    if profile is not None:
+        return profile
+    raise HTTPException(status_code=404, detail=f"Artist's Profile {user_id} not found")
+
 
 @router.get(
     "/artists/{id}",

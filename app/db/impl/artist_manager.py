@@ -13,8 +13,10 @@ class ArtistManager():
 
     async def get_profile(self, id: str) -> ArtistModel:
         profile = await self.db["artists"].find_one({"_id": id})
-        if profile:
-            return ArtistModel(**profile)
+        return profile
+
+    async def get_profile_by_user_id(self, user_id: str) -> ArtistModel:
+        profile = await self.db["artists"].find_one({"user_id": user_id})
         return profile
 
     async def add_profile(self, artist: ArtistModel = Body(...)):

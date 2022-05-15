@@ -15,6 +15,10 @@ class ListenerManager():
         profile = await self.db["listeners"].find_one({"_id": id})
         return profile
 
+    async def get_profile_by_user_id(self, user_id: str) -> ListenerModel:
+        profile = await self.db["listeners"].find_one({"user_id": user_id})
+        return profile
+
     async def add_profile(self, listener: ListenerModel = Body(...)):
         profile = jsonable_encoder(listener)
         await self.db["listeners"].insert_one(profile)

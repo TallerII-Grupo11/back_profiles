@@ -37,6 +37,22 @@ async def show_profile(id: str, db: DatabaseManager = Depends(get_database)):
                         )
 
 
+@router.get(
+    "/listeners",
+    response_description="Get a single listener profile",
+    response_model=ListenerModel,
+    status_code=status.HTTP_200_OK,
+)
+async def show_profile(user_id: str, db: DatabaseManager = Depends(get_database)):
+    manager = ListenerManager(db.db)
+    profile = await manager.get_profile_by_user_id(user_id=user_id)
+    if profile is not None:
+        return profile
+    raise HTTPException(status_code=404,
+                        detail=f"Listener's Profile {user_id} not found"
+                        )
+
+
 @router.put(
     "/listeners/{id}",
     response_description="Update a listener's profile",
