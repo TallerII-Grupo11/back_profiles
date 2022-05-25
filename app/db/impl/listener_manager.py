@@ -8,7 +8,7 @@ from app.db.model.listener import ListenerModel, UpdateListenerModel
 from fastapi.encoders import jsonable_encoder
 
 
-class ListenerManager():
+class ListenerManager:
     def __init__(self, db: AsyncIOMotorDatabase):
         self.db = db
 
@@ -18,7 +18,9 @@ class ListenerManager():
 
     async def get_all_profiles(self, user_id: str) -> List[ListenerModel]:
         if user_id is not None:
-            profiles = await self.db["listeners"].find({"user_id": user_id}).to_list(100)
+            profiles = (
+                await self.db["listeners"].find({"user_id": user_id}).to_list(100)
+            )
         else:
             profiles = await self.db["listeners"].find().to_list(100)
 
@@ -38,9 +40,7 @@ class ListenerManager():
         return delete_result
 
     async def update_profile(
-        self,
-        id: str,
-        profile: UpdateListenerModel = Body(...)
+        self, id: str, profile: UpdateListenerModel = Body(...)
     ) -> ListenerModel:
         try:
             profile = {k: v for k, v in profile.dict().items() if v is not None}

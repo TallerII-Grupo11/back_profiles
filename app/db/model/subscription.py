@@ -8,8 +8,8 @@ class Subscription(str, Enum):
     premium = 'premium'
 
     def get_allowed(subscription: str) -> List[str]:
-        if (subscription == "premium"):
+        if subscription == "premium":
             return ["free", "premium", "normal"]
-        if (subscription == "normal"):
+        if subscription == "normal":
             return ["free", "normal"]
         return ["free"]

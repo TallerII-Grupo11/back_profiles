@@ -11,11 +11,10 @@ router = APIRouter(tags=["artists"])
 @router.post(
     "/artists",
     response_description="Add new artist profile",
-    response_model=ArtistModel
+    response_model=ArtistModel,
 )
 async def create_profile(
-    artist: ArtistModel = Body(...),
-    db: DatabaseManager = Depends(get_database)
+    artist: ArtistModel = Body(...), db: DatabaseManager = Depends(get_database)
 ):
     manager = ArtistManager(db.db)
     created_profile = await manager.add_profile(artist)
@@ -28,7 +27,9 @@ async def create_profile(
     response_model=List[ArtistModel],
     status_code=status.HTTP_200_OK,
 )
-async def get_profiles(user_id: Optional[str] = None, db: DatabaseManager = Depends(get_database)):
+async def get_profiles(
+    user_id: Optional[str] = None, db: DatabaseManager = Depends(get_database)
+):
     manager = ArtistManager(db.db)
     profiles = await manager.get_all_profiles(user_id)
 
@@ -57,7 +58,7 @@ async def show_profile(id: str, db: DatabaseManager = Depends(get_database)):
 async def update_profile(
     id: str,
     artist: UpdateArtistModel = Body(...),
-    db: DatabaseManager = Depends(get_database)
+    db: DatabaseManager = Depends(get_database),
 ):
     manager = ArtistManager(db.db)
     try:

@@ -7,7 +7,7 @@ from app.db.model.artist import ArtistModel, UpdateArtistModel
 from fastapi.encoders import jsonable_encoder
 
 
-class ArtistManager():
+class ArtistManager:
     def __init__(self, db: AsyncIOMotorDatabase):
         self.db = db
 
@@ -33,9 +33,7 @@ class ArtistManager():
         return delete_result
 
     async def update_profile(
-        self,
-        id: str,
-        profile: UpdateArtistModel = Body(...)
+        self, id: str, profile: UpdateArtistModel = Body(...)
     ) -> ArtistModel:
         try:
             profile = {k: v for k, v in profile.dict().items() if v is not None}
