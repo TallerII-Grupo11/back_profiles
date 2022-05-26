@@ -4,6 +4,8 @@ from fastapi.responses import JSONResponse
 from app.db import DatabaseManager, get_database
 from app.db.impl.artist_manager import ArtistManager
 from app.db.model.artist import ArtistModel, UpdateArtistModel
+from app.rest import get_restclient
+from app.rest.users import UserClient
 
 router = APIRouter(tags=["artists"])
 
@@ -14,8 +16,11 @@ router = APIRouter(tags=["artists"])
     response_model=ArtistModel,
 )
 async def create_profile(
-    artist: ArtistModel = Body(...), db: DatabaseManager = Depends(get_database)
+    artist: ArtistModel = Body(...),
+    db: DatabaseManager = Depends(get_database),
+    rest: UserClient = Depends(get_restclient),
 ):
+    user = rest.get()
     manager = ArtistManager(db.db)
     created_profile = await manager.add_profile(artist)
     return JSONResponse(status_code=status.HTTP_201_CREATED, content=created_profile)
@@ -28,8 +33,14 @@ async def create_profile(
     status_code=status.HTTP_200_OK,
 )
 async def get_profiles(
-    user_id: Optional[str] = None, db: DatabaseManager = Depends(get_database)
+    user_id: Optional[str] = None,
+    db: DatabaseManager = Depends(get_database),
+    rest: UserClient = Depends(get_restclient),
 ):
+    # test
+    user = rest.get()
+    print(user.firebase_id)
+    print(user.email)
     manager = ArtistManager(db.db)
     profiles = await manager.get_all_profiles(user_id)
 
