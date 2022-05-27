@@ -101,7 +101,6 @@ async def delete_profile(id: str, db: DatabaseManager = Depends(get_database)):
 
 
 # MULTIMEDIA
-
 @router.post(
     "/artists/{user_id}/album",
     response_description="Create new album for artist",
@@ -116,4 +115,21 @@ async def create_album(
     album = rest.create_album(album)
     manager = ArtistManager(db.db)
     response = manager.add_album(user_id=user_id, album_id=album["_id"])
+    return JSONResponse(status_code=status.HTTP_201_CREATED, content=response)
+
+
+@router.post(
+    "/artists/{user_id}/song",
+    response_description="Create new song for artist",
+    response_model=ArtistModel,
+)
+async def create_song(
+    user_id: str,
+    song: SongRequestDto = Body(...),
+    db: DatabaseManager = Depends(get_database),
+    rest: MultimediaClient = Depends(get_restmultimedia),
+):
+    song = rest.create_song(song)
+    manager = ArtistManager(db.db)
+    response = manager.add_song(user_id=user_id, song_id=song["_id"])
     return JSONResponse(status_code=status.HTTP_201_CREATED, content=response)

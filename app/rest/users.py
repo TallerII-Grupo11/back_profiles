@@ -1,7 +1,6 @@
 import httpx
 
-from app.rest.dtos.request.user import UserRequestDto
-from app.rest.dtos.user import UserResponseDto
+from app.rest.dtos.user import UserResponseDto, UserRequestDto
 
 
 class UserClient:

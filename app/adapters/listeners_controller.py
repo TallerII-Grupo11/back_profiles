@@ -85,3 +85,22 @@ async def delete_profile(id: str, db: DatabaseManager = Depends(get_database)):
         return JSONResponse(status_code=status.HTTP_204_NO_CONTENT)
 
     raise HTTPException(status_code=404, detail=f"Listener {id} not found")
+
+
+# MULTIMEDIA
+@router.post(
+    "/listeners/{user_id}/playlist",
+    response_description="Create new playlist for listener",
+    response_model=ListenerModel,
+)
+async def create_playlist(
+    user_id: str,
+    playlist: PlaylistRequestDto = Body(...),
+    db: DatabaseManager = Depends(get_database),
+    rest: MultimediaClient = Depends(get_restmultimedia),
+):
+    playlist = rest.create_playlist(playlist)
+    manager = ArtistManager(db.db)
+    response = manager.create_playlist(user_id=user_id, playlist_id=playlist["_id"])
+    return JSONResponse(status_code=status.HTTP_201_CREATED, content=response)
+

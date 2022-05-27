@@ -57,3 +57,17 @@ class ArtistManager:
             msg = f"[ADD ALBUM] Fail with msg: {e}"
             logging.error(msg)
             raise RuntimeError(msg)
+
+    async def add_song(self, user_id: str, song_id: str) -> ArtistModel:
+        try:
+            await self.db["artists"]\
+                .update_one({"user_id": user_id},
+                            {"$addToSet": {"songs": song_id}}
+                            )
+            model = await self.get_all_profile(user_id)
+            return model
+        except Exception as e:
+            msg = f"[ADD SONG] Fail with msg: {e}"
+            logging.error(msg)
+            raise RuntimeError(msg)
+            
