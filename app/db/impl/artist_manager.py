@@ -1,5 +1,5 @@
 import logging
-
+from typing import List
 from motor.motor_asyncio import AsyncIOMotorDatabase
 from fastapi import Body
 
@@ -7,7 +7,7 @@ from app.db.model.artist import ArtistModel, UpdateArtistModel
 from fastapi.encoders import jsonable_encoder
 
 
-class ArtistManager():
+class ArtistManager:
     def __init__(self, db: AsyncIOMotorDatabase):
         self.db = db
 
@@ -15,9 +15,13 @@ class ArtistManager():
         profile = await self.db["artists"].find_one({"_id": id})
         return profile
 
-    async def get_profile_by_user_id(self, user_id: str) -> ArtistModel:
-        profile = await self.db["artists"].find_one({"user_id": user_id})
-        return profile
+    async def get_all_profiles(self, user_id: str) -> List[ArtistModel]:
+        if user_id is not None:
+            profiles = await self.db["artists"].find({"user_id": user_id}).to_list(100)
+        else:
+            profiles = await self.db["artists"].find().to_list(100)
+
+        return profiles
 
     async def add_profile(self, artist: ArtistModel = Body(...)):
         profile = jsonable_encoder(artist)
@@ -29,9 +33,7 @@ class ArtistManager():
         return delete_result
 
     async def update_profile(
-        self,
-        id: str,
-        profile: UpdateArtistModel = Body(...)
+        self, id: str, profile: UpdateArtistModel = Body(...)
     ) -> ArtistModel:
         try:
             profile = {k: v for k, v in profile.dict().items() if v is not None}

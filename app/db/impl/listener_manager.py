@@ -1,4 +1,5 @@
 import logging
+from typing import List
 
 from motor.motor_asyncio import AsyncIOMotorDatabase
 from fastapi import Body
@@ -7,13 +8,23 @@ from app.db.model.listener import ListenerModel, UpdateListenerModel
 from fastapi.encoders import jsonable_encoder
 
 
-class ListenerManager():
+class ListenerManager:
     def __init__(self, db: AsyncIOMotorDatabase):
         self.db = db
 
     async def get_profile(self, id: str) -> ListenerModel:
         profile = await self.db["listeners"].find_one({"_id": id})
         return profile
+
+    async def get_all_profiles(self, user_id: str) -> List[ListenerModel]:
+        if user_id is not None:
+            profiles = (
+                await self.db["listeners"].find({"user_id": user_id}).to_list(100)
+            )
+        else:
+            profiles = await self.db["listeners"].find().to_list(100)
+
+        return profiles
 
     async def get_profile_by_user_id(self, user_id: str) -> ListenerModel:
         profile = await self.db["listeners"].find_one({"user_id": user_id})
@@ -29,9 +40,7 @@ class ListenerManager():
         return delete_result
 
     async def update_profile(
-        self,
-        id: str,
-        profile: UpdateListenerModel = Body(...)
+        self, id: str, profile: UpdateListenerModel = Body(...)
     ) -> ListenerModel:
         try:
             profile = {k: v for k, v in profile.dict().items() if v is not None}

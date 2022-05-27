@@ -10,10 +10,7 @@ class MongoManager(DatabaseManager):
 
     async def connect_to_database(self, path: str):
         logging.info("Connecting to MongoDB.")
-        self.client = AsyncIOMotorClient(
-            path,
-            maxPoolSize=10,
-            minPoolSize=10)
+        self.client = AsyncIOMotorClient(path, maxPoolSize=10, minPoolSize=10)
         # Multimedia is main_db
         self.db = self.client.profiles
         logging.info("Connected to MongoDB.")
