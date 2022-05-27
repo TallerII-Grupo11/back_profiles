@@ -9,19 +9,17 @@ from bson import ObjectId
 class ArtistModel(BaseModel):
     id: PyObjectId = Field(default_factory=PyObjectId, alias="_id")
     user_id: str = Field(...)
-    songs: List[str] = []
     albums: List[str] = []
 
     class Config:
         allow_population_by_field_name = True
         arbitrary_types_allowed = True
         json_encoders = {ObjectId: str}
-        schema_extra = {"example": {"user_id": "user_id", "songs": [], "albums": []}}
+        schema_extra = {"example": {"user_id": "user_id", "albums": []}}
 
 
 class UpdateArtistModel(BaseModel):
     user_id: Optional[str]
-    songs: Optional[List[str]]
     albums: Optional[List[str]]
 
     class Config:
@@ -30,7 +28,6 @@ class UpdateArtistModel(BaseModel):
         schema_extra = {
             "example": {
                 "user_id": "user_id",
-                "songs": [],
                 "albums": [],
             }
         }
