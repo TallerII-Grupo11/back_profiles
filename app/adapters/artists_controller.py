@@ -99,7 +99,6 @@ async def delete_profile(id: str, db: DatabaseManager = Depends(get_database)):
     raise HTTPException(status_code=404, detail=f"Artist {id} not found")
 
 
-
 # MULTIMEDIA
 @router.post(
     "/artists/{user_id}/album",

@@ -1,4 +1,5 @@
 from pydantic.main import BaseModel
+from typing import List
 
 
 class SongRequestDto(BaseModel):
@@ -6,6 +7,7 @@ class SongRequestDto(BaseModel):
     artists: List[str]
     description: str
     song_file: str
+
 
 class SongResponseDto(BaseModel):
     _id: str

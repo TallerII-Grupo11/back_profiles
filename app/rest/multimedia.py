@@ -1,7 +1,8 @@
 import httpx
 
-from app.rest.dtos.request.album import AlbumRequestDto
-from app.rest.dtos.album import AlbumResponseDto
+from app.rest.dtos.album import AlbumResponseDto, AlbumRequestDto
+from app.rest.dtos.playlist import PlaylistResponseDto, PlaylistRequestDto
+from app.rest.dtos.album import SongResponseDto, SongRequestDto
 
 
 class MultimediaClient:
@@ -18,7 +19,7 @@ class MultimediaClient:
 
         return SongResponseDto(**r.json())
 
-    def create_playlist(self, request: PlaylistsRequestDto) -> PlaylistsResponseDto:
+    def create_playlist(self, request: PlaylistRequestDto) -> PlaylistResponseDto:
         r = httpx.post(f'{self.api_url}/playlists', data=request.dict())
 
-        return PlaylistsResponseDto(**r.json())
+        return PlaylistResponseDto(**r.json())

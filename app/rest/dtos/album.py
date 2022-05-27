@@ -1,4 +1,6 @@
 from pydantic.main import BaseModel
+from typing import List
+
 
 class AlbumRequestDto(BaseModel):
     title: str
@@ -8,6 +10,7 @@ class AlbumRequestDto(BaseModel):
     images: List[str]
     subscription: str
     songs: List[str]
+
 
 class AlbumResponseDto(BaseModel):
     _id: str

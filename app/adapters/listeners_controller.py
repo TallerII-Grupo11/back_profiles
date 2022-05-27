@@ -103,4 +103,3 @@ async def create_playlist(
     manager = ArtistManager(db.db)
     response = manager.create_playlist(user_id=user_id, playlist_id=playlist["_id"])
     return JSONResponse(status_code=status.HTTP_201_CREATED, content=response)
-

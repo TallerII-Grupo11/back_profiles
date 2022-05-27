@@ -1,5 +1,6 @@
 from pydantic.main import BaseModel
 
+
 class UserRequestDto(BaseModel):
     firebase_id: str
     first_name: str
