@@ -70,4 +70,3 @@ class ArtistManager:
             msg = f"[ADD SONG] Fail with msg: {e}"
             logging.error(msg)
             raise RuntimeError(msg)
-            

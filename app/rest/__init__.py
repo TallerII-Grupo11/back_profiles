@@ -7,5 +7,6 @@ from app.rest.multimedia import MultimediaClient
 def get_restclient(settings: Settings = Depends(get_settings)) -> UserClient:
     return UserClient(settings.users_api)
 
+
 def get_restmultimedia(settings: Settings = Depends(get_settings)) -> MultimediaClient:
     return MultimediaClient(settings.multimedia_api)

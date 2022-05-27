@@ -1,9 +1,11 @@
 from typing import Optional, List
 from fastapi import APIRouter, status, Depends, HTTPException, Body
 from fastapi.responses import JSONResponse
-from app.db import DatabaseManager, get_database
+from app.db import DatabaseManager, get_database, get_restmultimedia
 from app.db.impl.listener_manager import ListenerManager
 from app.db.model.listener import ListenerModel, UpdateListenerModel
+from app.rest.dtos.playlist import PlaylistResponseDto, PlaylistRequestDto
+from app.rest.multimedia import MultimediaClient
 
 router = APIRouter(tags=["listeners"])
 
@@ -100,6 +102,6 @@ async def create_playlist(
     rest: MultimediaClient = Depends(get_restmultimedia),
 ):
     playlist = rest.create_playlist(playlist)
-    manager = ArtistManager(db.db)
+    manager = ListenerManager(db.db)
     response = manager.create_playlist(user_id=user_id, playlist_id=playlist["_id"])
     return JSONResponse(status_code=status.HTTP_201_CREATED, content=response)
