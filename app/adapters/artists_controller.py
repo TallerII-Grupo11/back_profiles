@@ -4,8 +4,9 @@ from fastapi.responses import JSONResponse
 from app.db import DatabaseManager, get_database
 from app.db.impl.artist_manager import ArtistManager
 from app.db.model.artist import ArtistModel, UpdateArtistModel
-from app.rest import get_restclient
+from app.rest import get_restclient, get_restmultimedia
 from app.rest.users import UserClient
+from app.rest.multimedia import MultimediaClient
 
 router = APIRouter(tags=["artists"])
 
@@ -96,3 +97,23 @@ async def delete_profile(id: str, db: DatabaseManager = Depends(get_database)):
         return JSONResponse(status_code=status.HTTP_204_NO_CONTENT)
 
     raise HTTPException(status_code=404, detail=f"Artist {id} not found")
+
+
+
+# MULTIMEDIA
+
+@router.post(
+    "/artists/{user_id}/album",
+    response_description="Create new album for artist",
+    response_model=ArtistModel,
+)
+async def create_album(
+    user_id: str,
+    album: AlbumRequestDto = Body(...),
+    db: DatabaseManager = Depends(get_database),
+    rest: MultimediaClient = Depends(get_restmultimedia),
+):
+    album = rest.create_album(album)
+    manager = ArtistManager(db.db)
+    response = manager.add_album(user_id=user_id, album_id=album["_id"])
+    return JSONResponse(status_code=status.HTTP_201_CREATED, content=response)

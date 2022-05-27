@@ -17,7 +17,7 @@ class ArtistManager:
 
     async def get_all_profiles(self, user_id: str) -> List[ArtistModel]:
         if user_id is not None:
-            profiles = await self.db["artists"].find({"user_id": user_id}).to_list(100)
+            profiles = await self.db["artists"].find({"user_id": user_id})
         else:
             profiles = await self.db["artists"].find().to_list(100)
 
@@ -42,5 +42,18 @@ class ArtistManager:
             return model
         except Exception as e:
             msg = f"[UPDATE_PROFILE] Profile: {profile} error: {e}"
+            logging.error(msg)
+            raise RuntimeError(msg)
+
+    async def add_album(self, user_id: str, album_id: str) -> ArtistModel:
+        try:
+            await self.db["artists"]\
+                .update_one({"user_id": user_id},
+                            {"$addToSet": {"albums": album_id}}
+                            )
+            model = await self.get_all_profile(user_id)
+            return model
+        except Exception as e:
+            msg = f"[ADD ALBUM] Fail with msg: {e}"
             logging.error(msg)
             raise RuntimeError(msg)
