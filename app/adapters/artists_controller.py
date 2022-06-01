@@ -5,10 +5,10 @@ from app.db import DatabaseManager, get_database
 from app.db.impl.artist_manager import ArtistManager
 from app.db.model.artist import ArtistModel, UpdateArtistModel
 from app.rest import get_restclient, get_restmultimedia
-from app.rest.users import UserClient
+from app.rest.users_client import UserClient
 from app.rest.dtos.song import SongResponseDto, SongRequestDto
 from app.rest.dtos.album import AlbumResponseDto, AlbumRequestDto
-from app.rest.multimedia import MultimediaClient
+from app.rest.multimedia_client import MultimediaClient
 
 router = APIRouter(tags=["artists"])
 

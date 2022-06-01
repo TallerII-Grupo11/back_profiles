@@ -1,11 +1,12 @@
 from typing import Optional, List
 from fastapi import APIRouter, status, Depends, HTTPException, Body
 from fastapi.responses import JSONResponse
-from app.db import DatabaseManager, get_database, get_restmultimedia
+from app.db import DatabaseManager, get_database
+from app.rest import get_restmultimedia
 from app.db.impl.listener_manager import ListenerManager
 from app.db.model.listener import ListenerModel, UpdateListenerModel
 from app.rest.dtos.playlist import PlaylistResponseDto, PlaylistRequestDto
-from app.rest.multimedia import MultimediaClient
+from app.rest.multimedia_client import MultimediaClient
 
 router = APIRouter(tags=["listeners"])
 
