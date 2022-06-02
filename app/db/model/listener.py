@@ -10,7 +10,8 @@ class ListenerModel(BaseModel):
     id: PyObjectId = Field(default_factory=PyObjectId, alias="_id")
     user_id: str = Field(...)
     interests: List[str] = []
-    #    subscription: Subscription = Subscription.free
+    playlists: List[str] = []
+    subscription: str = "free"
     #    playlists: List[str] = []
     #    follow_artists: List[str] = []
     #    favorite_songs: List[str] = []
@@ -25,14 +26,16 @@ class ListenerModel(BaseModel):
             "example": {
                 "user_id": "id",
                 "interests": ["genre_name"],
+                "playlists": ["playlist_ids"],
+                "subscription": "free"
             }
         }
 
 
 class UpdateListenerModel(BaseModel):
     interests: Optional[List[str]]
-    #    subscription: Optional[str]
-    #    playlist: Optional[str]
+    playlists: Optional[List[str]]
+    subscription: Optional[str]
     #    follow_artist: Optional[str]
     #    favorite_song: Optional[str]
     #    favorite_album: Optional[str]
@@ -45,5 +48,7 @@ class UpdateListenerModel(BaseModel):
             "example": {
                 "user_id": "id",
                 "interests": ["genre_name"],
+                "playlists": ["playlist_ids"],
+                "subscription": "free"
             }
         }

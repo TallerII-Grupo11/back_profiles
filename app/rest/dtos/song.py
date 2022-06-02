@@ -8,6 +8,9 @@ class SongRequestDto(BaseModel):
     description: str
     song_file: str
 
+    def __getitem__(self, item):
+        return getattr(self, item)
+
 
 class SongResponseDto(BaseModel):
     _id: str
@@ -15,3 +18,6 @@ class SongResponseDto(BaseModel):
     artists: List[str]
     description: str
     song_file: str
+
+    def __getitem__(self, item):
+        return getattr(self, item)

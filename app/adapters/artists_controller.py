@@ -112,7 +112,7 @@ async def create_album(
     db: DatabaseManager = Depends(get_database),
     rest: MultimediaClient = Depends(get_restmultimedia),
 ):
-    album = rest.create_album(album)
+    album, album_id = rest.create_album(album)
     manager = ArtistManager(db.db)
-    response = manager.add_album(user_id=user_id, album_id=album["_id"])
+    response = await manager.add_album(user_id=user_id, album_id=album_id)
     return JSONResponse(status_code=status.HTTP_201_CREATED, content=response)

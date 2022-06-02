@@ -1,7 +1,9 @@
 import httpx
+import json
 import logging
 
-from app.rest.dtos.album import AlbumResponseDto, AlbumRequestDto, AlbumSongResponseDto
+from typing import List
+from app.rest.dtos.album import AlbumResponseDto, AlbumRequestDto, AlbumSongResponseDto, AlbumIdsRequestDto
 from app.rest.dtos.playlist import PlaylistResponseDto, PlaylistRequestDto, PlaylistSongResponseDto
 from app.rest.dtos.song import SongResponseDto, SongRequestDto
 
@@ -10,57 +12,74 @@ class MultimediaClient:
     def __init__(self, api_url: str):
         self.api_url = api_url
 
-    def create_album(self, request: AlbumRequestDto) -> AlbumResponseDto:
+    def create_album(self, request: AlbumRequestDto) -> (AlbumResponseDto, str):
         song_ids = []
         for song in request["songs"]:
-            s = self.create_song(song)
-            song_ids.append(s["_id"])
-        del request["songs"]
+            s, song_id = self.create_song(song)
+            song_ids.append(song_id)
 
-        album = AlbumIdsRequestDto(**request.json())
-        album["songs"] = song_ids
-        r = httpx.post(f'{self.api_url}/albums', data=album.dict())
+        request.set_songs()
+        data = request.dict()
+        album = AlbumIdsRequestDto(**data)
+        album.set_songs(song_ids)
 
-        return AlbumResponseDto(**r.json())
+        r = httpx.post(f'{self.api_url}/albums', data=json.dumps(album.dict()))
+        d = r.json()
 
-    def create_song(self, request: SongRequestDto) -> SongResponseDto:
-        r = httpx.post(f'{self.api_url}/songs', data=request.dict())
-        return SongResponseDto(**r.json())
+        return AlbumResponseDto(**d), d["_id"]
 
-    def create_playlist(self, request: PlaylistRequestDto) -> PlaylistResponseDto:
-        r = httpx.post(f'{self.api_url}/playlists', data=request.dict())
-        logging.info(f)
+    def create_song(self, request: SongRequestDto) -> (SongResponseDto, str):
+        r = httpx.post(f'{self.api_url}/songs', data=json.dumps(request.dict()))
+        d = r.json()
 
-        return PlaylistResponseDto(**r.json())
+        return SongResponseDto(**d), d["_id"]
+
+    def create_playlist(self, request: PlaylistRequestDto) -> (PlaylistResponseDto, str):
+        r = httpx.post(f'{self.api_url}/playlists/', data=json.dumps(request.dict()))
+        d = r.json()
+        return PlaylistResponseDto(**d), d["_id"]
 
     def get_song(self, song_id: str) -> SongResponseDto:
         r = httpx.get(f'{self.api_url}/songs/{song_id}')
-        print(r.json())
+        d = r.json()
 
-        return SongResponseDto(**r.json())
+        return SongResponseDto(**d)
 
     def get_album(self, album_id: str) -> AlbumSongResponseDto:
-        r = httpx.get(f'{self.api_url}/album/{song_id}')
-        songs_list = []
-        for song_id in r["songs"]:
-            s = self.get_song(song_id)
-            songs_list.append(s)
+        r = httpx.get(f'{self.api_url}/albums/{album_id}')
+        songs_list = self.get_songs(r["songs"])
 
         del r["songs"]
-        album = AlbumSongResponseDto(**r.json())
-        album["songs"] = songs_list
+        d = r.json()
+        album = AlbumSongResponseDto(**d)
+        album.set_songs(songs_list)
 
         return album
 
     def get_playlist(self, playlist_id: str) -> PlaylistSongResponseDto:
         r = httpx.get(f'{self.api_url}/playlists/{playlist_id}')
-        songs_list = []
-        for song_id in r["songs"]:
-            s = self.get_song(song_id)
-            songs_list.append(s)
+        s = r.json()
+        songs_list = self.get_songs(s["songs"])
 
-        del r["songs"]
-        playlist = PlaylistSongResponseDto(**r.json())
-        playlist["songs"] = songs_list
+        del s["songs"]
+        playlist = PlaylistSongResponseDto(**s)
+        playlist.set_songs(songs_list)
 
         return playlist
+
+    def get_songs(self, songs: List[str]) -> List[SongResponseDto]:
+        songs_list = []
+        for song_id in songs:
+            s = self.get_song(song_id)
+            songs_list.append(s)
+        return songs_list
+
+    def get_playlists(self, playlist_ids: List[str]) -> List[PlaylistSongResponseDto]:
+        list_playlists = []
+
+        for playlist_id in playlist_ids:
+            play = self.get_playlist(playlist_id)
+            list_playlists.append(play)
+
+        return list_playlists
+
