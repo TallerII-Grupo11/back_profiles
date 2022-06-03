@@ -6,9 +6,10 @@ from app.db.impl.artist_manager import ArtistManager
 from app.db.model.artist import ArtistModel, UpdateArtistModel
 from app.rest import get_restclient, get_restmultimedia
 from app.rest.users_client import UserClient
-from app.rest.dtos.song import SongResponseDto, SongRequestDto
-from app.rest.dtos.album import AlbumResponseDto, AlbumRequestDto
+from app.rest.dtos.album import AlbumRequestDto, AlbumSongResponseDto
+from app.rest.dtos.song import SongRequestDto, SongResponseDto
 from app.rest.multimedia_client import MultimediaClient
+import logging
 
 router = APIRouter(tags=["artists"])
 
@@ -116,3 +117,52 @@ async def create_album(
     manager = ArtistManager(db.db)
     response = await manager.add_album(user_id=user_id, album_id=album_id)
     return JSONResponse(status_code=status.HTTP_201_CREATED, content=response)
+
+
+@router.get(
+    "/artists/{user_id}/album",
+    response_description="Get albums for artist",
+    response_model=List[AlbumSongResponseDto],
+)
+async def get_albums(
+    user_id: str,
+    db: DatabaseManager = Depends(get_database),
+    rest: MultimediaClient = Depends(get_restmultimedia),
+):
+    manager = ArtistManager(db.db)
+    user_profile = await manager.get_all_profiles(user_id=user_id)
+    response = rest.get_albums(user_profile["albums"])
+    return response
+
+
+@router.post(
+    "/artists/{user_id}/song",
+    response_description="Create new song for artist",
+    response_model=ArtistModel,
+)
+async def create_song(
+    user_id: str,
+    song: SongRequestDto = Body(...),
+    db: DatabaseManager = Depends(get_database),
+    rest: MultimediaClient = Depends(get_restmultimedia),
+):
+    song, song_id = rest.create_song(song)
+    manager = ArtistManager(db.db)
+    response = await manager.add_song(user_id=user_id, song_id=song_id)
+    return JSONResponse(status_code=status.HTTP_201_CREATED, content=response)
+
+
+@router.get(
+    "/artists/{user_id}/song",
+    response_description="Get songs for artist",
+    response_model=List[SongResponseDto],
+)
+async def get_songs(
+    user_id: str,
+    db: DatabaseManager = Depends(get_database),
+    rest: MultimediaClient = Depends(get_restmultimedia),
+):
+    manager = ArtistManager(db.db)
+    user_profile = await manager.get_all_profiles(user_id=user_id)
+    response = rest.get_songs(user_profile["songs"])
+    return response

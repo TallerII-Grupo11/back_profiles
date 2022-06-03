@@ -10,17 +10,19 @@ class ArtistModel(BaseModel):
     id: PyObjectId = Field(default_factory=PyObjectId, alias="_id")
     user_id: str = Field(...)
     albums: List[str] = []
+    songs: List[str] = []
 
     class Config:
         allow_population_by_field_name = True
         arbitrary_types_allowed = True
         json_encoders = {ObjectId: str}
-        schema_extra = {"example": {"user_id": "user_id", "albums": []}}
+        schema_extra = {"example": {"user_id": "user_id", "albums": [], "songs": []}}
 
 
 class UpdateArtistModel(BaseModel):
     user_id: Optional[str]
     albums: Optional[List[str]]
+    songs: Optional[List[str]]
 
     class Config:
         arbitrary_types_allowed = True
@@ -29,5 +31,6 @@ class UpdateArtistModel(BaseModel):
             "example": {
                 "user_id": "user_id",
                 "albums": [],
+                "songs": [],
             }
         }

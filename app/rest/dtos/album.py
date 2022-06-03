@@ -8,24 +8,9 @@ class AlbumRequestDto(BaseModel):
     artist: str
     description: str
     genre: str
-    images: List[str]
+    image: str
     subscription: str
-    songs: List[SongRequestDto]
-
-    def __getitem__(self, item):
-        return getattr(self, item)
-
-    def set_songs(self, songs=[]):
-        self.songs = songs
-
-class AlbumIdsRequestDto(BaseModel):
-    title: str
-    artist: str
-    description: str
-    genre: str
-    images: List[str]
-    subscription: str
-    songs: List[str] = []
+    songs: List[str]
 
     def __getitem__(self, item):
         return getattr(self, item)
@@ -40,7 +25,7 @@ class AlbumResponseDto(BaseModel):
     artist: str
     description: str
     genre: str
-    images: List[str]
+    image: str
     subscription: str
     songs: List[str]
 
@@ -54,7 +39,7 @@ class AlbumSongResponseDto(BaseModel):
     artist: str
     description: str
     genre: str
-    images: List[str]
+    image: str
     subscription: str
     songs: List[SongResponseDto] = []
 
@@ -63,3 +48,6 @@ class AlbumSongResponseDto(BaseModel):
 
     def set_songs(self, songs=[]):
         self.songs = songs
+
+    def toJSON(self):
+        return json.dumps(self, default=lambda o: o.__dict__, sort_keys=True, indent=4)

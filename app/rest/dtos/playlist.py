@@ -3,7 +3,6 @@ from pydantic.main import BaseModel
 from app.rest.dtos.song import SongResponseDto
 
 
-
 class PlaylistRequestDto(BaseModel):
     title: str
     description: str
@@ -13,6 +12,7 @@ class PlaylistRequestDto(BaseModel):
 
     def __getitem__(self, item):
         return getattr(self, item)
+
 
 class PlaylistResponseDto(BaseModel):
     _id: str
@@ -24,6 +24,7 @@ class PlaylistResponseDto(BaseModel):
 
     def __getitem__(self, item):
         return getattr(self, item)
+
 
 class PlaylistSongResponseDto(BaseModel):
     _id: str
@@ -38,3 +39,7 @@ class PlaylistSongResponseDto(BaseModel):
 
     def set_songs(self, songs=[]):
         self.songs = songs
+
+    def toJSON(self):
+        return json.dumps(self, default=lambda o: o.__dict__, 
+            sort_keys=True, indent=4)

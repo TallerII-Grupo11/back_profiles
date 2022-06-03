@@ -21,3 +21,11 @@ class SongResponseDto(BaseModel):
 
     def __getitem__(self, item):
         return getattr(self, item)
+
+    def __dict__(self):
+        return {"id": self._id,
+                "title": self.title,
+                "artists": self.artists,
+                "description": self.description,
+                "song_file": self.song_file
+        }

@@ -3,7 +3,7 @@ import json
 import logging
 
 from typing import List
-from app.rest.dtos.album import AlbumResponseDto, AlbumRequestDto, AlbumSongResponseDto, AlbumIdsRequestDto
+from app.rest.dtos.album import AlbumResponseDto, AlbumRequestDto, AlbumSongResponseDto
 from app.rest.dtos.playlist import PlaylistResponseDto, PlaylistRequestDto, PlaylistSongResponseDto
 from app.rest.dtos.song import SongResponseDto, SongRequestDto
 
@@ -13,19 +13,9 @@ class MultimediaClient:
         self.api_url = api_url
 
     def create_album(self, request: AlbumRequestDto) -> (AlbumResponseDto, str):
-        song_ids = []
-        for song in request["songs"]:
-            s, song_id = self.create_song(song)
-            song_ids.append(song_id)
-
-        request.set_songs()
-        data = request.dict()
-        album = AlbumIdsRequestDto(**data)
-        album.set_songs(song_ids)
-
-        r = httpx.post(f'{self.api_url}/albums', data=json.dumps(album.dict()))
+        r = httpx.post(f'{self.api_url}/albums', data=json.dumps(request.dict()))
         d = r.json()
-
+        logging.info(f"[album] {d}")
         return AlbumResponseDto(**d), d["_id"]
 
     def create_song(self, request: SongRequestDto) -> (SongResponseDto, str):
@@ -35,7 +25,7 @@ class MultimediaClient:
         return SongResponseDto(**d), d["_id"]
 
     def create_playlist(self, request: PlaylistRequestDto) -> (PlaylistResponseDto, str):
-        r = httpx.post(f'{self.api_url}/playlists/', data=json.dumps(request.dict()))
+        r = httpx.post(f'{self.api_url}/playlists', data=json.dumps(request.dict()))
         d = r.json()
         return PlaylistResponseDto(**d), d["_id"]
 
@@ -47,11 +37,11 @@ class MultimediaClient:
 
     def get_album(self, album_id: str) -> AlbumSongResponseDto:
         r = httpx.get(f'{self.api_url}/albums/{album_id}')
-        songs_list = self.get_songs(r["songs"])
+        s = r.json()
+        songs_list = self.get_songs(s["songs"])
 
-        del r["songs"]
-        d = r.json()
-        album = AlbumSongResponseDto(**d)
+        del s["songs"]
+        album = AlbumSongResponseDto(**s)
         album.set_songs(songs_list)
 
         return album
@@ -83,3 +73,11 @@ class MultimediaClient:
 
         return list_playlists
 
+    def get_albums(self, album_ids: List[str]) -> List[AlbumSongResponseDto]:
+        list_albums = []
+
+        for album_id in album_ids:
+            alb = self.get_album(album_id)
+            list_albums.append(alb)
+
+        return list_albums
