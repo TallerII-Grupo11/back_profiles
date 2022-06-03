@@ -4,7 +4,7 @@ import logging
 
 from typing import List
 from app.rest.dtos.album import AlbumResponseDto, AlbumRequestDto, AlbumSongResponseDto
-from app.rest.dtos.playlist import PlaylistResponseDto, 
+from app.rest.dtos.playlist import PlaylistResponseDto
 from app.rest.dtos.playlist import PlaylistRequestDto, PlaylistSongResponseDto
 from app.rest.dtos.song import SongResponseDto, SongRequestDto
 

@@ -9,7 +9,6 @@ from app.rest.users_client import UserClient
 from app.rest.dtos.album import AlbumRequestDto, AlbumSongResponseDto
 from app.rest.dtos.song import SongRequestDto, SongResponseDto
 from app.rest.multimedia_client import MultimediaClient
-import logging
 
 router = APIRouter(tags=["artists"])
 
