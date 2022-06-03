@@ -1,6 +1,6 @@
 from pydantic.main import BaseModel
 from typing import List
-from app.rest.dtos.song import SongRequestDto, SongResponseDto
+from app.rest.dtos.song import SongResponseDto
 
 
 class AlbumRequestDto(BaseModel):
@@ -48,6 +48,3 @@ class AlbumSongResponseDto(BaseModel):
 
     def set_songs(self, songs=[]):
         self.songs = songs
-
-    def toJSON(self):
-        return json.dumps(self, default=lambda o: o.__dict__, sort_keys=True, indent=4)

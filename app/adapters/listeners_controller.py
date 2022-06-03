@@ -8,7 +8,6 @@ from app.db.model.listener import ListenerModel, UpdateListenerModel
 from app.rest.dtos.playlist import PlaylistRequestDto, PlaylistSongResponseDto
 from app.rest.multimedia_client import MultimediaClient
 import logging
-import json
 
 router = APIRouter(tags=["listeners"])
 
@@ -109,6 +108,7 @@ async def create_playlist(
     manager = ListenerManager(db.db)
     response = await manager.create_playlist(user_id=user_id, playlist_id=playlist_id)
     return JSONResponse(status_code=status.HTTP_201_CREATED, content=response)
+
 
 @router.get(
     "/listeners/{user_id}/playlists",
