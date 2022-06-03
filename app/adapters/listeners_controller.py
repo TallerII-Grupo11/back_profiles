@@ -2,8 +2,12 @@ from typing import Optional, List
 from fastapi import APIRouter, status, Depends, HTTPException, Body
 from fastapi.responses import JSONResponse
 from app.db import DatabaseManager, get_database
+from app.rest import get_restmultimedia
 from app.db.impl.listener_manager import ListenerManager
 from app.db.model.listener import ListenerModel, UpdateListenerModel
+from app.rest.dtos.playlist import PlaylistRequestDto, PlaylistSongResponseDto
+from app.rest.multimedia_client import MultimediaClient
+import logging
 
 router = APIRouter(tags=["listeners"])
 
@@ -85,3 +89,38 @@ async def delete_profile(id: str, db: DatabaseManager = Depends(get_database)):
         return JSONResponse(status_code=status.HTTP_204_NO_CONTENT)
 
     raise HTTPException(status_code=404, detail=f"Listener {id} not found")
+
+
+# MULTIMEDIA
+@router.post(
+    "/listeners/{user_id}/playlist",
+    response_description="Create new playlist for listener",
+    response_model=ListenerModel,
+)
+async def create_playlist(
+    user_id: str,
+    playlist: PlaylistRequestDto = Body(...),
+    db: DatabaseManager = Depends(get_database),
+    rest: MultimediaClient = Depends(get_restmultimedia),
+):
+    playlist, playlist_id = rest.create_playlist(playlist)
+    logging.info(f"[playlist] {playlist} - {playlist_id}")
+    manager = ListenerManager(db.db)
+    response = await manager.create_playlist(user_id=user_id, playlist_id=playlist_id)
+    return JSONResponse(status_code=status.HTTP_201_CREATED, content=response)
+
+
+@router.get(
+    "/listeners/{user_id}/playlists",
+    response_description="Get all playlist of listener",
+    response_model=List[PlaylistSongResponseDto],
+)
+async def get_playlists(
+    user_id: str,
+    db: DatabaseManager = Depends(get_database),
+    rest: MultimediaClient = Depends(get_restmultimedia),
+):
+    manager = ListenerManager(db.db)
+    user_profile = await manager.get_all_profiles(user_id=user_id)
+    playlists = rest.get_playlists(user_profile["playlists"])
+    return playlists
