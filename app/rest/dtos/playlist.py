@@ -7,7 +7,7 @@ class PlaylistRequestDto(BaseModel):
     title: str
     description: str
     songs: List[str]
-    is_collaborative: str
+    is_collaborative: bool
     owner_id: str
 
     def __getitem__(self, item):
@@ -19,7 +19,7 @@ class PlaylistResponseDto(BaseModel):
     title: str
     description: str
     songs: List[str] = []
-    is_collaborative: str
+    is_collaborative: bool
     owner_id: str
 
     def __getitem__(self, item):
@@ -31,7 +31,7 @@ class PlaylistSongResponseDto(BaseModel):
     title: str
     description: str
     songs: List[SongResponseDto] = []
-    is_collaborative: str
+    is_collaborative: bool
     owner_id: str
 
     def __getitem__(self, item):

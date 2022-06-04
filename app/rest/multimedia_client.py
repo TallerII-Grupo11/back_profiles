@@ -28,8 +28,9 @@ class MultimediaClient:
     def create_playlist(
         self, request: PlaylistRequestDto
     ) -> (PlaylistResponseDto, str):
-        r = httpx.post(f'{self.api_url}/playlists', data=json.dumps(request.dict()))
+        r = httpx.post(f'{self.api_url}/playlists/', data=json.dumps(request.dict()))
         d = r.json()
+        logging.info(f"[PLAYLIST JSON] {d}")
         return PlaylistResponseDto(**d), d["_id"]
 
     def get_song(self, song_id: str) -> SongResponseDto:
