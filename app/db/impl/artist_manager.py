@@ -45,26 +45,26 @@ class ArtistManager:
             logging.error(msg)
             raise RuntimeError(msg)
 
-    async def add_album(self, user_id: str, album_id: str) -> ArtistModel:
+    async def add_album(self, id: str, album_id: str) -> ArtistModel:
         try:
             await self.db["artists"]\
-                .update_one({"user_id": user_id},
+                .update_one({"_id": id},
                             {"$addToSet": {"albums": album_id}}
                             )
-            model = await self.get_all_profiles(user_id)
+            model = await self.get_profile(id)
             return model
         except Exception as e:
             msg = f"[ADD ALBUM] Fail with msg: {e}"
             logging.error(msg)
             raise RuntimeError(msg)
 
-    async def add_song(self, user_id: str, song_id: str) -> ArtistModel:
+    async def add_song(self, id: str, song_id: str) -> ArtistModel:
         try:
             await self.db["artists"]\
-                .update_one({"user_id": user_id},
+                .update_one({"_id": id},
                             {"$addToSet": {"songs": song_id}}
                             )
-            model = await self.get_all_profiles(user_id)
+            model = await self.get_profile(id)
             return model
         except Exception as e:
             msg = f"[ADD SONG] Fail with msg: {e}"

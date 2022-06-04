@@ -26,10 +26,6 @@ class ListenerManager:
 
         return profiles
 
-    async def get_profile_by_user_id(self, user_id: str) -> ListenerModel:
-        profile = await self.db["listeners"].find_one({"user_id": user_id})
-        return profile
-
     async def add_profile(self, listener: ListenerModel = Body(...)):
         profile = jsonable_encoder(listener)
         await self.db["listeners"].insert_one(profile)
@@ -52,13 +48,13 @@ class ListenerManager:
             logging.error(msg)
             raise RuntimeError(msg)
 
-    async def create_playlist(self, user_id: str, playlist_id: str) -> ListenerModel:
+    async def create_playlist(self, id: str, playlist_id: str) -> ListenerModel:
         try:
             await self.db["listeners"]\
-                .update_one({"user_id": user_id},
+                .update_one({"_id": id},
                             {"$addToSet": {"playlists": playlist_id}}
                             )
-            model = await self.get_all_profiles(user_id)
+            model = await self.get_profile(id)
             return model
         except Exception as e:
             msg = f"[CREATE PLAYLIST] Fail with msg: {e}"

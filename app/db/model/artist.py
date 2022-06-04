@@ -1,5 +1,8 @@
 from app.db.model.py_object_id import PyObjectId
 from pydantic import Field
+from app.rest.dtos.album import AlbumSongResponseDto
+from app.rest.dtos.song import SongResponseDto
+
 
 from pydantic.main import BaseModel
 from typing import List, Optional
@@ -23,6 +26,23 @@ class UpdateArtistModel(BaseModel):
     user_id: Optional[str]
     albums: Optional[List[str]]
     songs: Optional[List[str]]
+
+    class Config:
+        arbitrary_types_allowed = True
+        json_encoders = {ObjectId: str}
+        schema_extra = {
+            "example": {
+                "user_id": "user_id",
+                "albums": [],
+                "songs": [],
+            }
+        }
+
+
+class CompleteArtistModel(BaseModel):
+    user_id: Optional[str]
+    albums: Optional[List[AlbumSongResponseDto]]
+    songs: Optional[List[SongResponseDto]]
 
     class Config:
         arbitrary_types_allowed = True
