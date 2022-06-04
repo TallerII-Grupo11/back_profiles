@@ -7,8 +7,8 @@ from app.db.model.artist import ArtistModel, UpdateArtistModel
 from app.db.model.artist import CompleteArtistModel
 from app.rest import get_restclient, get_restmultimedia
 from app.rest.users_client import UserClient
-from app.rest.dtos.album import AlbumRequestDto, AlbumSongResponseDto
-from app.rest.dtos.song import SongRequestDto, SongResponseDto
+from app.rest.dtos.album import AlbumRequestDto
+from app.rest.dtos.song import SongRequestDto
 from app.rest.multimedia_client import MultimediaClient
 
 router = APIRouter(tags=["artists"])
@@ -141,10 +141,8 @@ async def create_song(
     rest: MultimediaClient = Depends(get_restmultimedia),
 ):
     song, song_id = rest.create_song(song)
-    # Agregar cancion al album_id
     if rest.add_song_to_album(album_id, song_id):
-    # agregar cancion al artista
         manager = ArtistManager(db.db)
         response = await manager.add_song(id=id, song_id=song_id)
         return JSONResponse(status_code=status.HTTP_201_CREATED, content=response)
-    raise HTTPException(status_code=404, detail=f"Error creating song for album {album_id}")
+    raise HTTPException(status_code=404, detail=f"Error add song in album {album_id}")

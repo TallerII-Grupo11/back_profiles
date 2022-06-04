@@ -36,7 +36,7 @@ class MultimediaClient:
     def get_song(self, song_id: str) -> SongResponseDto:
         r = httpx.get(f'{self.api_url}/songs/{song_id}')
         d = r.json()
-        
+
         return SongResponseDto(**d)
 
     def get_album(self, album_id: str) -> AlbumSongResponseDto:

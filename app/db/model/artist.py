@@ -38,6 +38,7 @@ class UpdateArtistModel(BaseModel):
             }
         }
 
+
 class CompleteArtistModel(BaseModel):
     user_id: Optional[str]
     albums: Optional[List[AlbumSongResponseDto]]

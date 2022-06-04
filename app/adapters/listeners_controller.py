@@ -6,7 +6,7 @@ from app.rest import get_restmultimedia
 from app.db.impl.listener_manager import ListenerManager
 from app.db.model.listener import ListenerModel, UpdateListenerModel
 from app.db.model.listener import CompleteListenerModel
-from app.rest.dtos.playlist import PlaylistRequestDto, PlaylistSongResponseDto
+from app.rest.dtos.playlist import PlaylistRequestDto
 from app.rest.multimedia_client import MultimediaClient
 import logging
 

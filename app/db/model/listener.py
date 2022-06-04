@@ -54,6 +54,7 @@ class UpdateListenerModel(BaseModel):
             }
         }
 
+
 class CompleteListenerModel(BaseModel):
     id: PyObjectId = Field(default_factory=PyObjectId, alias="_id")
     user_id: str = Field(...)
@@ -65,4 +66,3 @@ class CompleteListenerModel(BaseModel):
         allow_population_by_field_name = True
         arbitrary_types_allowed = True
         json_encoders = {ObjectId: str}
-        
