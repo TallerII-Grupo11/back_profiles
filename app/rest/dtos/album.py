@@ -1,16 +1,17 @@
 from pydantic.main import BaseModel
 from typing import List
 from app.rest.dtos.song import SongResponseDto
+from app.rest.dtos.artist import ArtistModel
 
 
 class AlbumRequestDto(BaseModel):
     title: str
-    artist: str
+    artist: ArtistModel
     description: str
     genre: str
     image: str
     subscription: str
-    songs: List[str]
+    songs: List[str] = []
 
     def __getitem__(self, item):
         return getattr(self, item)
@@ -22,12 +23,12 @@ class AlbumRequestDto(BaseModel):
 class AlbumResponseDto(BaseModel):
     _id: str
     title: str
-    artist: str
+    artist: ArtistModel
     description: str
     genre: str
     image: str
     subscription: str
-    songs: List[str]
+    songs: List[str] = []
 
     def __getitem__(self, item):
         return getattr(self, item)
@@ -36,7 +37,7 @@ class AlbumResponseDto(BaseModel):
 class AlbumSongResponseDto(BaseModel):
     _id: str
     title: str
-    artist: str
+    artist: ArtistModel
     description: str
     genre: str
     image: str

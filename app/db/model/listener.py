@@ -1,5 +1,6 @@
 from app.db.model.py_object_id import PyObjectId
 from pydantic import Field
+from app.rest.dtos.playlist import PlaylistSongResponseDto
 
 from pydantic.main import BaseModel
 from typing import List, Optional
@@ -52,3 +53,16 @@ class UpdateListenerModel(BaseModel):
                 "subscription": "free"
             }
         }
+
+class CompleteListenerModel(BaseModel):
+    id: PyObjectId = Field(default_factory=PyObjectId, alias="_id")
+    user_id: str = Field(...)
+    interests: List[str] = []
+    playlists: List[PlaylistSongResponseDto] = []
+    subscription: str = "free"
+
+    class Config:
+        allow_population_by_field_name = True
+        arbitrary_types_allowed = True
+        json_encoders = {ObjectId: str}
+        

@@ -5,6 +5,7 @@ from app.db import DatabaseManager, get_database
 from app.rest import get_restmultimedia
 from app.db.impl.listener_manager import ListenerManager
 from app.db.model.listener import ListenerModel, UpdateListenerModel
+from app.db.model.listener import CompleteListenerModel
 from app.rest.dtos.playlist import PlaylistRequestDto, PlaylistSongResponseDto
 from app.rest.multimedia_client import MultimediaClient
 import logging
@@ -28,14 +29,21 @@ async def create_profile(
 @router.get(
     "/listeners/{id}",
     response_description="Get a single listener profile",
-    response_model=ListenerModel,
+    response_model=CompleteListenerModel,
     status_code=status.HTTP_200_OK,
 )
-async def show_profile(id: str, db: DatabaseManager = Depends(get_database)):
+async def show_profile(
+    id: str,
+    db: DatabaseManager = Depends(get_database),
+    rest: MultimediaClient = Depends(get_restmultimedia)
+):
     manager = ListenerManager(db.db)
     profile = await manager.get_profile(id=id)
+
     if profile is not None:
-        return profile
+        playlists = rest.get_playlists(profile["playlists"])
+        profile["playlists"] = playlists
+        return CompleteListenerModel(**profile)
     raise HTTPException(status_code=404, detail=f"Listener's Profile {id} not found")
 
 
@@ -46,7 +54,9 @@ async def show_profile(id: str, db: DatabaseManager = Depends(get_database)):
     status_code=status.HTTP_200_OK,
 )
 async def get_profiles(
-    user_id: Optional[str] = None, db: DatabaseManager = Depends(get_database)
+    user_id: Optional[str] = None,
+    db: DatabaseManager = Depends(get_database),
+    rest: MultimediaClient = Depends(get_restmultimedia),
 ):
     manager = ListenerManager(db.db)
     profiles = await manager.get_all_profiles(user_id)
@@ -93,12 +103,12 @@ async def delete_profile(id: str, db: DatabaseManager = Depends(get_database)):
 
 # MULTIMEDIA
 @router.post(
-    "/listeners/{user_id}/playlist",
+    "/listeners/{id}/playlists",
     response_description="Create new playlist for listener",
     response_model=ListenerModel,
 )
 async def create_playlist(
-    user_id: str,
+    id: str,
     playlist: PlaylistRequestDto = Body(...),
     db: DatabaseManager = Depends(get_database),
     rest: MultimediaClient = Depends(get_restmultimedia),
@@ -106,21 +116,5 @@ async def create_playlist(
     playlist, playlist_id = rest.create_playlist(playlist)
     logging.info(f"[playlist] {playlist} - {playlist_id}")
     manager = ListenerManager(db.db)
-    response = await manager.create_playlist(user_id=user_id, playlist_id=playlist_id)
+    response = await manager.create_playlist(id=id, playlist_id=playlist_id)
     return JSONResponse(status_code=status.HTTP_201_CREATED, content=response)
-
-
-@router.get(
-    "/listeners/{user_id}/playlists",
-    response_description="Get all playlist of listener",
-    response_model=List[PlaylistSongResponseDto],
-)
-async def get_playlists(
-    user_id: str,
-    db: DatabaseManager = Depends(get_database),
-    rest: MultimediaClient = Depends(get_restmultimedia),
-):
-    manager = ListenerManager(db.db)
-    user_profile = await manager.get_all_profiles(user_id=user_id)
-    playlists = rest.get_playlists(user_profile["playlists"])
-    return playlists

@@ -36,7 +36,7 @@ class MultimediaClient:
     def get_song(self, song_id: str) -> SongResponseDto:
         r = httpx.get(f'{self.api_url}/songs/{song_id}')
         d = r.json()
-
+        
         return SongResponseDto(**d)
 
     def get_album(self, album_id: str) -> AlbumSongResponseDto:
@@ -85,3 +85,11 @@ class MultimediaClient:
             list_albums.append(alb)
 
         return list_albums
+
+    def add_song_to_album(self, album_id: str, song_id=str) -> bool:
+        song = {"songs": [song_id]}
+        r = httpx.patch(
+            f'{self.api_url}/albums/{album_id}/songs',
+            data=json.dumps(song)
+        )
+        return r.status_code == 200
