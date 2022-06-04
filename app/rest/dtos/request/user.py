@@ -1,3 +1,5 @@
+from typing import Optional
+
 from pydantic.main import BaseModel
 
 
@@ -6,5 +8,9 @@ class UserRequestDto(BaseModel):
     first_name: str
     last_name: str
     role: str
-    location: str
+    location: Optional[str]
     email: str
+
+
+class UpdateUserRequestDto(UserRequestDto):
+    status: Optional[str]

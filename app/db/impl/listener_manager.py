@@ -12,7 +12,7 @@ class ListenerManager:
     def __init__(self, db: AsyncIOMotorDatabase):
         self.db = db
 
-    async def get_profile(self, id: str) -> ListenerModel:
+    async def get_profile(self, id: str):
         profile = await self.db["listeners"].find_one({"_id": id})
         return profile
 
@@ -41,7 +41,7 @@ class ListenerManager:
 
     async def update_profile(
         self, id: str, profile: UpdateListenerModel = Body(...)
-    ) -> ListenerModel:
+    ):
         try:
             profile = {k: v for k, v in profile.dict().items() if v is not None}
             await self.db["listeners"].update_one({"_id": id}, {"$set": profile})

@@ -1,6 +1,6 @@
 import httpx
 
-from app.rest.dtos.request.user import UserRequestDto
+from app.rest.dtos.request.user import UserRequestDto, UpdateUserRequestDto
 from app.rest.dtos.user import UserResponseDto
 
 
@@ -9,13 +9,23 @@ class UserClient:
         self.api_url = api_url
 
     def create_user(self, request: UserRequestDto) -> UserResponseDto:
-        r = httpx.post(f'{self.api_url}/users', data=request.dict())
+        print(request.dict())
+        r = httpx.post(f'{self.api_url}/users', json=request.dict())
+        if r.status_code != httpx.codes.CREATED:
+            r.raise_for_status()
 
         return UserResponseDto(**r.json())
 
-    # test
-    def get(self) -> UserResponseDto:
-        r = httpx.get(f'{self.api_url}/users/62cf7d15-a12f-4881-8c6d-1bd82b766088')
-        print(r.json())
+    def get(self, user_id: str) -> UserResponseDto:
+        r = httpx.get(f'{self.api_url}/users/{user_id}')
+        if r.status_code != httpx.codes.OK:
+            r.raise_for_status()
+
+        return UserResponseDto(**r.json())
+
+    def update(self, user_id: str, request: UpdateUserRequestDto) -> UserResponseDto:
+        r = httpx.put(f'{self.api_url}/users/{user_id}', json=request.dict())
+        if r.status_code != httpx.codes.ACCEPTED:
+            r.raise_for_status()
 
         return UserResponseDto(**r.json())
