@@ -19,16 +19,12 @@ class ListenerManager:
     async def get_all_profiles(self, user_id: str) -> List[ListenerModel]:
         if user_id is not None:
             profiles = (
-                await self.db["listeners"].find({"user_id": user_id}).to_list(100)
+                await self.db["listeners"].find_one({"user_id": user_id})
             )
         else:
             profiles = await self.db["listeners"].find().to_list(100)
 
         return profiles
-
-    async def get_profile_by_user_id(self, user_id: str) -> ListenerModel:
-        profile = await self.db["listeners"].find_one({"user_id": user_id})
-        return profile
 
     async def add_profile(self, listener: ListenerModel = Body(...)):
         profile = jsonable_encoder(listener)
@@ -49,5 +45,18 @@ class ListenerManager:
             return model
         except Exception as e:
             msg = f"[UPDATE_PROFILE] Profile: {profile} error: {e}"
+            logging.error(msg)
+            raise RuntimeError(msg)
+
+    async def create_playlist(self, id: str, playlist_id: str) -> ListenerModel:
+        try:
+            await self.db["listeners"]\
+                .update_one({"_id": id},
+                            {"$addToSet": {"playlists": playlist_id}}
+                            )
+            model = await self.get_profile(id)
+            return model
+        except Exception as e:
+            msg = f"[CREATE PLAYLIST] Fail with msg: {e}"
             logging.error(msg)
             raise RuntimeError(msg)

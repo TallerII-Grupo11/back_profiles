@@ -3,8 +3,10 @@ from typing import List, Optional
 from pydantic.fields import Field
 from pydantic.main import BaseModel
 
-from app.db.model.artist import ArtistModel
+from app.db.model.artist import ArtistModel, CompleteArtistModel
 from app.db.model.py_object_id import PyObjectId
+from app.rest.dtos.album import AlbumSongResponseDto
+from app.rest.dtos.song import SongResponseDto
 from app.rest.dtos.user import UserResponseDto
 
 
@@ -46,7 +48,10 @@ class ArtistResponseDto(BaseModel):
         # schema_extra = {"example": {"user_id": "user_id", "songs": [], "albums": []}}
 
     @staticmethod
-    def from_artist_model(artist_model: ArtistModel, user: UserResponseDto) -> "ArtistResponseDto":
+    def from_artist_model(
+            artist_model: ArtistModel,
+            user: UserResponseDto,
+    ) -> "ArtistResponseDto":
         return ArtistResponseDto(
             id=str(artist_model.id),
             user_id=user.id,
@@ -59,4 +64,34 @@ class ArtistResponseDto(BaseModel):
             role=user.role,
             songs=artist_model.songs,
             albums=artist_model.albums,
+        )
+
+
+class CompleteArtistResponseDto(ArtistResponseDto):
+    albums: List[AlbumSongResponseDto] = []
+    songs: List[SongResponseDto] = []
+
+    class Config:
+        allow_population_by_field_name = True
+        arbitrary_types_allowed = True
+        # schema_extra = {"example": {"user_id": "user_id", "songs": [], "albums": []}}
+
+    @staticmethod
+    def from_models(
+            artist_model: ArtistModel,
+            user: UserResponseDto,
+            complete_artist_model: CompleteArtistModel,
+    ) -> "CompleteArtistResponseDto":
+        return CompleteArtistResponseDto(
+            id=str(artist_model.id),
+            user_id=user.id,
+            firebase_id=user.firebase_id,
+            email=user.email,
+            first_name=user.first_name,
+            last_name=user.last_name,
+            location=user.location,
+            status=user.status,
+            role=user.role,
+            songs=complete_artist_model.songs,
+            albums=complete_artist_model.albums,
         )

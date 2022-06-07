@@ -11,6 +11,7 @@ class Settings(BaseSettings):
     port: int = 5000
     db_path: str
     users_api: str
+    multimedia_api: str
 
     class Config:
         BASE_DIR = os.path.dirname(os.path.abspath("../.env"))

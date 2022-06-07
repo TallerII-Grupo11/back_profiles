@@ -3,13 +3,18 @@ from fastapi import APIRouter, status, Depends, HTTPException, Body
 from fastapi.responses import JSONResponse
 from fastapi.encoders import jsonable_encoder
 
-from app.adapters.dtos.artists import ArtistResponseDto, ArtistRequestDto, UpdateArtistRequestDto
+from app.adapters.dtos.artists import ArtistResponseDto, ArtistRequestDto, UpdateArtistRequestDto, \
+    CompleteArtistResponseDto
 from app.db import DatabaseManager, get_database
 from app.db.impl.artist_manager import ArtistManager
 from app.db.model.artist import ArtistModel, UpdateArtistModel
-from app.rest import get_restclient
+from app.db.model.artist import CompleteArtistModel
+from app.rest import get_restclient_user, get_restclient_multimedia
+from app.rest.users_client import UserClient
+from app.rest.dtos.request.album import AlbumRequestDto
 from app.rest.dtos.request.user import UserRequestDto, UpdateUserRequestDto
-from app.rest.users import UserClient
+from app.rest.dtos.request.song import SongRequestDto
+from app.rest.multimedia_client import MultimediaClient
 
 router = APIRouter(tags=["artists"])
 
@@ -22,7 +27,7 @@ router = APIRouter(tags=["artists"])
 async def create_profile(
     req: ArtistRequestDto = Body(...),
     db: DatabaseManager = Depends(get_database),
-    rest: UserClient = Depends(get_restclient),
+    rest: UserClient = Depends(get_restclient_user),
 ):
     manager = ArtistManager(db.db)
     try:
@@ -69,13 +74,14 @@ async def get_profiles(
 @router.get(
     "/artists/{artist_id}",
     response_description="Get a single artist profile",
-    response_model=ArtistResponseDto,
+    response_model=CompleteArtistResponseDto,
     status_code=status.HTTP_200_OK,
 )
 async def show_profile(
         artist_id: str,
         db: DatabaseManager = Depends(get_database),
-        rest: UserClient = Depends(get_restclient),
+        rest_media: MultimediaClient = Depends(get_restclient_multimedia),
+        rest_user: UserClient = Depends(get_restclient_user),
 ):
     manager = ArtistManager(db.db)
     profile = await manager.get_profile(id=artist_id)
@@ -84,8 +90,17 @@ async def show_profile(
 
     try:
         artist = ArtistModel(**profile)
-        user = rest.get(artist.user_id)
-        dto = ArtistResponseDto.from_artist_model(artist, user)
+        user = rest_user.get(artist.user_id)
+
+        albums = rest_media.get_albums(artist.albums)
+        songs = rest_media.get_songs(artist.songs)
+
+        complete_artist_model = CompleteArtistModel(
+            user_id=artist.user_id,
+            albums=albums,
+            songs=songs,
+        )
+        dto = CompleteArtistResponseDto.from_models(artist, user, complete_artist_model)
         return dto
     except Exception as e:
         raise HTTPException(status_code=404, detail=f"User data not found. Exception {e}")
@@ -101,7 +116,7 @@ async def update_profile(
         artist_id: str,
         req: UpdateArtistRequestDto = Body(...),
         db: DatabaseManager = Depends(get_database),
-        rest: UserClient = Depends(get_restclient),
+        rest: UserClient = Depends(get_restclient_user),
 ):
     manager = ArtistManager(db.db)
     try:
@@ -152,3 +167,41 @@ async def delete_profile(
         return JSONResponse(status_code=status.HTTP_204_NO_CONTENT)
 
     raise HTTPException(status_code=404, detail=f"Artist {artist_id} not found")
+
+
+# MULTIMEDIA
+@router.post(
+    "/artists/{id}/albums",
+    response_description="Create new album for artist",
+    response_model=ArtistModel,
+)
+async def create_album(
+    id: str,
+    album: AlbumRequestDto = Body(...),
+    db: DatabaseManager = Depends(get_database),
+    rest: MultimediaClient = Depends(get_restclient_multimedia),
+):
+    album, album_id = rest.create_album(album)
+    manager = ArtistManager(db.db)
+    response = await manager.add_album(id=id, album_id=album_id)
+    return JSONResponse(status_code=status.HTTP_201_CREATED, content=response)
+
+
+@router.post(
+    "/artists/{id}/albums/{album_id}/songs",
+    response_description="Create new song for artist and album",
+    response_model=ArtistModel,
+)
+async def create_song(
+    id: str,
+    album_id: str,
+    song: SongRequestDto = Body(...),
+    db: DatabaseManager = Depends(get_database),
+    rest: MultimediaClient = Depends(get_restclient_multimedia),
+):
+    song, song_id = rest.create_song(song)
+    if rest.add_song_to_album(album_id, song_id):
+        manager = ArtistManager(db.db)
+        response = await manager.add_song(id=id, song_id=song_id)
+        return JSONResponse(status_code=status.HTTP_201_CREATED, content=response)
+    raise HTTPException(status_code=404, detail=f"Error add song in album {album_id}")

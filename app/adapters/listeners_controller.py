@@ -3,11 +3,17 @@ from fastapi import APIRouter, status, Depends, HTTPException, Body
 from fastapi.responses import JSONResponse
 from fastapi.encoders import jsonable_encoder
 
-from app.adapters.dtos.listeners import ListenerResponseDto, ListenerRequestDto, UpdateListenerRequestDto
+from app.adapters.dtos.listeners import ListenerResponseDto, ListenerRequestDto, UpdateListenerRequestDto, \
+    CompleteListenerResponseDto
 from app.db import DatabaseManager, get_database
+from app.rest import get_restclient_multimedia
 from app.db.impl.listener_manager import ListenerManager
 from app.db.model.listener import ListenerModel, UpdateListenerModel
-from app.rest import UserClient, get_restclient
+from app.db.model.listener import CompleteListenerModel
+from app.rest.dtos.request.playlist import PlaylistRequestDto
+from app.rest.multimedia_client import MultimediaClient
+import logging
+from app.rest import UserClient, get_restclient_user
 from app.rest.dtos.request.user import UserRequestDto, UpdateUserRequestDto
 
 router = APIRouter(tags=["listeners"])
@@ -21,7 +27,7 @@ router = APIRouter(tags=["listeners"])
 async def create_profile(
         req: ListenerRequestDto = Body(...),
         db: DatabaseManager = Depends(get_database),
-        rest: UserClient = Depends(get_restclient),
+        rest: UserClient = Depends(get_restclient_user),
 ):
     manager = ListenerManager(db.db)
     try:
@@ -51,13 +57,14 @@ async def create_profile(
 @router.get(
     "/listeners/{listener_id}",
     response_description="Get a single listener profile",
-    response_model=ListenerResponseDto,
+    response_model=CompleteListenerResponseDto,
     status_code=status.HTTP_200_OK,
 )
 async def show_profile(
         listener_id: str,
         db: DatabaseManager = Depends(get_database),
-        rest: UserClient = Depends(get_restclient),
+        rest_user: UserClient = Depends(get_restclient_user),
+        rest_media: MultimediaClient = Depends(get_restclient_multimedia),
 ):
     manager = ListenerManager(db.db)
     profile = await manager.get_profile(id=listener_id)
@@ -66,8 +73,12 @@ async def show_profile(
 
     try:
         listener = ListenerModel(**profile)
-        user = rest.get(listener.user_id)
-        dto = ListenerResponseDto.from_listener_model(listener, user)
+        user = rest_user.get(listener.user_id)
+        playlists = rest_media.get_playlists(listener.playlists)
+        complete_listener_model = CompleteListenerModel(
+            playlists=playlists,
+        )
+        dto = CompleteListenerResponseDto.from_models(listener, user, complete_listener_model)
         return dto
     except Exception as e:
         raise HTTPException(status_code=404, detail=f"User data not found. Exception {e}")
@@ -98,7 +109,7 @@ async def update_profile(
         listener_id: str,
         req: UpdateListenerRequestDto = Body(...),
         db: DatabaseManager = Depends(get_database),
-        rest: UserClient = Depends(get_restclient),
+        rest: UserClient = Depends(get_restclient_user),
 ):
     manager = ListenerManager(db.db)
     try:
@@ -145,3 +156,22 @@ async def delete_profile(id: str, db: DatabaseManager = Depends(get_database)):
         return JSONResponse(status_code=status.HTTP_204_NO_CONTENT)
 
     raise HTTPException(status_code=404, detail=f"Listener {id} not found")
+
+
+# MULTIMEDIA
+@router.post(
+    "/listeners/{id}/playlists",
+    response_description="Create new playlist for listener",
+    response_model=ListenerModel,
+)
+async def create_playlist(
+    id: str,
+    playlist: PlaylistRequestDto = Body(...),
+    db: DatabaseManager = Depends(get_database),
+    rest: MultimediaClient = Depends(get_restclient_multimedia),
+):
+    playlist, playlist_id = rest.create_playlist(playlist)
+    logging.info(f"[playlist] {playlist} - {playlist_id}")
+    manager = ListenerManager(db.db)
+    response = await manager.create_playlist(id=id, playlist_id=playlist_id)
+    return JSONResponse(status_code=status.HTTP_201_CREATED, content=response)
