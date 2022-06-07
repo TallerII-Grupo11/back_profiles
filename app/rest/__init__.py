@@ -8,5 +8,7 @@ def get_restclient_user(settings: Settings = Depends(get_settings)) -> UserClien
     return UserClient(settings.users_api)
 
 
-def get_restclient_multimedia(settings: Settings = Depends(get_settings)) -> MultimediaClient:
+def get_restclient_multimedia(
+    settings: Settings = Depends(get_settings),
+) -> MultimediaClient:
     return MultimediaClient(settings.multimedia_api)

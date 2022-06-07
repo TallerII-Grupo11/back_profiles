@@ -3,8 +3,12 @@ from fastapi import APIRouter, status, Depends, HTTPException, Body
 from fastapi.responses import JSONResponse
 from fastapi.encoders import jsonable_encoder
 
-from app.adapters.dtos.artists import ArtistResponseDto, ArtistRequestDto, UpdateArtistRequestDto, \
-    CompleteArtistResponseDto
+from app.adapters.dtos.artists import (
+    ArtistResponseDto,
+    ArtistRequestDto,
+    UpdateArtistRequestDto,
+    CompleteArtistResponseDto,
+)
 from app.db import DatabaseManager, get_database
 from app.db.impl.artist_manager import ArtistManager
 from app.db.model.artist import ArtistModel, UpdateArtistModel
@@ -40,19 +44,19 @@ async def create_profile(
             email=req.email,
         )
         user = rest.create_user(user_req)
-        artist_model = ArtistModel(
-            user_id=user.id,
-            songs=req.songs,
-            albums=req.albums
-        )
+        artist_model = ArtistModel(user_id=user.id, songs=req.songs, albums=req.albums)
 
         created_profile = await manager.add_profile(artist_model)
         print(f"CREATED_PROFILE {created_profile}")
         print(f"CREATED_PROFILE_CONVERTED {ArtistModel(**created_profile)}")
         dto = ArtistResponseDto.from_artist_model(ArtistModel(**created_profile), user)
-        return JSONResponse(status_code=status.HTTP_201_CREATED, content=jsonable_encoder(dto))
+        return JSONResponse(
+            status_code=status.HTTP_201_CREATED, content=jsonable_encoder(dto)
+        )
     except Exception as e:
-        raise HTTPException(status_code=400, detail=f"Could not create User. Exception: {e}")
+        raise HTTPException(
+            status_code=400, detail=f"Could not create User. Exception: {e}"
+        )
 
 
 @router.get(
@@ -78,15 +82,17 @@ async def get_profiles(
     status_code=status.HTTP_200_OK,
 )
 async def show_profile(
-        artist_id: str,
-        db: DatabaseManager = Depends(get_database),
-        rest_media: MultimediaClient = Depends(get_restclient_multimedia),
-        rest_user: UserClient = Depends(get_restclient_user),
+    artist_id: str,
+    db: DatabaseManager = Depends(get_database),
+    rest_media: MultimediaClient = Depends(get_restclient_multimedia),
+    rest_user: UserClient = Depends(get_restclient_user),
 ):
     manager = ArtistManager(db.db)
     profile = await manager.get_profile(id=artist_id)
     if profile is None:
-        raise HTTPException(status_code=404, detail=f"Artist's Profile {artist_id} not found")
+        raise HTTPException(
+            status_code=404, detail=f"Artist's Profile {artist_id} not found"
+        )
 
     try:
         artist = ArtistModel(**profile)
@@ -103,7 +109,9 @@ async def show_profile(
         dto = CompleteArtistResponseDto.from_models(artist, user, complete_artist_model)
         return dto
     except Exception as e:
-        raise HTTPException(status_code=404, detail=f"User data not found. Exception {e}")
+        raise HTTPException(
+            status_code=404, detail=f"User data not found. Exception {e}"
+        )
 
 
 @router.put(
@@ -113,10 +121,10 @@ async def show_profile(
     status_code=status.HTTP_200_OK,
 )
 async def update_profile(
-        artist_id: str,
-        req: UpdateArtistRequestDto = Body(...),
-        db: DatabaseManager = Depends(get_database),
-        rest: UserClient = Depends(get_restclient_user),
+    artist_id: str,
+    req: UpdateArtistRequestDto = Body(...),
+    db: DatabaseManager = Depends(get_database),
+    rest: UserClient = Depends(get_restclient_user),
 ):
     manager = ArtistManager(db.db)
     try:
@@ -147,7 +155,9 @@ async def update_profile(
     except HTTPException as e:
         raise e
     except Exception as e:
-        raise HTTPException(status_code=400, detail=f"Error updating User. Exception {e}")
+        raise HTTPException(
+            status_code=400, detail=f"Error updating User. Exception {e}"
+        )
 
 
 @router.delete(
@@ -156,10 +166,7 @@ async def update_profile(
     include_in_schema=False,
     status_code=status.HTTP_200_OK,
 )
-async def delete_profile(
-        artist_id: str,
-        db: DatabaseManager = Depends(get_database)
-):
+async def delete_profile(artist_id: str, db: DatabaseManager = Depends(get_database)):
     manager = ArtistManager(db.db)
     delete_result = await manager.delete_profile(artist_id)
 

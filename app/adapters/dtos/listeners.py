@@ -46,7 +46,9 @@ class ListenerResponseDto(BaseModel):
         # schema_extra = {"example": {"user_id": "user_id", "songs": [], "albums": []}}
 
     @staticmethod
-    def from_listener_model(listener_model: ListenerModel, user: UserResponseDto) -> "ListenerResponseDto":
+    def from_listener_model(
+        listener_model: ListenerModel, user: UserResponseDto
+    ) -> "ListenerResponseDto":
         return ListenerResponseDto(
             id=str(listener_model.id),
             user_id=user.id,
@@ -73,9 +75,9 @@ class CompleteListenerResponseDto(ListenerResponseDto):
 
     @staticmethod
     def from_models(
-            listener_model: ListenerModel,
-            user: UserResponseDto,
-            complete_listener_model: CompleteListenerModel,
+        listener_model: ListenerModel,
+        user: UserResponseDto,
+        complete_listener_model: CompleteListenerModel,
     ) -> "CompleteListenerResponseDto":
         return CompleteListenerResponseDto(
             id=str(listener_model.id),
@@ -91,4 +93,3 @@ class CompleteListenerResponseDto(ListenerResponseDto):
             subscription=listener_model.subscription,
             playlists=complete_listener_model.playlists,
         )
-

@@ -4,7 +4,6 @@ from pydantic.fields import Field
 from pydantic.main import BaseModel
 
 from app.db.model.artist import ArtistModel, CompleteArtistModel
-from app.db.model.py_object_id import PyObjectId
 from app.rest.dtos.album import AlbumSongResponseDto
 from app.rest.dtos.song import SongResponseDto
 from app.rest.dtos.user import UserResponseDto
@@ -49,8 +48,8 @@ class ArtistResponseDto(BaseModel):
 
     @staticmethod
     def from_artist_model(
-            artist_model: ArtistModel,
-            user: UserResponseDto,
+        artist_model: ArtistModel,
+        user: UserResponseDto,
     ) -> "ArtistResponseDto":
         return ArtistResponseDto(
             id=str(artist_model.id),
@@ -78,9 +77,9 @@ class CompleteArtistResponseDto(ArtistResponseDto):
 
     @staticmethod
     def from_models(
-            artist_model: ArtistModel,
-            user: UserResponseDto,
-            complete_artist_model: CompleteArtistModel,
+        artist_model: ArtistModel,
+        user: UserResponseDto,
+        complete_artist_model: CompleteArtistModel,
     ) -> "CompleteArtistResponseDto":
         return CompleteArtistResponseDto(
             id=str(artist_model.id),

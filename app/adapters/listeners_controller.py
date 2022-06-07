@@ -3,8 +3,12 @@ from fastapi import APIRouter, status, Depends, HTTPException, Body
 from fastapi.responses import JSONResponse
 from fastapi.encoders import jsonable_encoder
 
-from app.adapters.dtos.listeners import ListenerResponseDto, ListenerRequestDto, UpdateListenerRequestDto, \
-    CompleteListenerResponseDto
+from app.adapters.dtos.listeners import (
+    ListenerResponseDto,
+    ListenerRequestDto,
+    UpdateListenerRequestDto,
+    CompleteListenerResponseDto,
+)
 from app.db import DatabaseManager, get_database
 from app.rest import get_restclient_multimedia
 from app.db.impl.listener_manager import ListenerManager
@@ -25,9 +29,9 @@ router = APIRouter(tags=["listeners"])
     response_model=ListenerResponseDto,
 )
 async def create_profile(
-        req: ListenerRequestDto = Body(...),
-        db: DatabaseManager = Depends(get_database),
-        rest: UserClient = Depends(get_restclient_user),
+    req: ListenerRequestDto = Body(...),
+    db: DatabaseManager = Depends(get_database),
+    rest: UserClient = Depends(get_restclient_user),
 ):
     manager = ListenerManager(db.db)
     try:
@@ -48,10 +52,16 @@ async def create_profile(
         created_profile = await manager.add_profile(listener_model)
         print(f"CREATED_PROFILE {created_profile}")
         print(f"CREATED_PROFILE_CONVERTED {ListenerModel(**created_profile)}")
-        dto = ListenerResponseDto.from_listener_model(ListenerModel(**created_profile), user)
-        return JSONResponse(status_code=status.HTTP_201_CREATED, content=jsonable_encoder(dto))
+        dto = ListenerResponseDto.from_listener_model(
+            ListenerModel(**created_profile), user
+        )
+        return JSONResponse(
+            status_code=status.HTTP_201_CREATED, content=jsonable_encoder(dto)
+        )
     except Exception as e:
-        raise HTTPException(status_code=400, detail=f"Could not create User. Exception: {e}")
+        raise HTTPException(
+            status_code=400, detail=f"Could not create User. Exception: {e}"
+        )
 
 
 @router.get(
@@ -61,15 +71,17 @@ async def create_profile(
     status_code=status.HTTP_200_OK,
 )
 async def show_profile(
-        listener_id: str,
-        db: DatabaseManager = Depends(get_database),
-        rest_user: UserClient = Depends(get_restclient_user),
-        rest_media: MultimediaClient = Depends(get_restclient_multimedia),
+    listener_id: str,
+    db: DatabaseManager = Depends(get_database),
+    rest_user: UserClient = Depends(get_restclient_user),
+    rest_media: MultimediaClient = Depends(get_restclient_multimedia),
 ):
     manager = ListenerManager(db.db)
     profile = await manager.get_profile(id=listener_id)
     if profile is None:
-        raise HTTPException(status_code=404, detail=f"Listener's Profile {listener_id} not found")
+        raise HTTPException(
+            status_code=404, detail=f"Listener's Profile {listener_id} not found"
+        )
 
     try:
         listener = ListenerModel(**profile)
@@ -78,10 +90,14 @@ async def show_profile(
         complete_listener_model = CompleteListenerModel(
             playlists=playlists,
         )
-        dto = CompleteListenerResponseDto.from_models(listener, user, complete_listener_model)
+        dto = CompleteListenerResponseDto.from_models(
+            listener, user, complete_listener_model
+        )
         return dto
     except Exception as e:
-        raise HTTPException(status_code=404, detail=f"User data not found. Exception {e}")
+        raise HTTPException(
+            status_code=404, detail=f"User data not found. Exception {e}"
+        )
 
 
 @router.get(
@@ -106,10 +122,10 @@ async def get_profiles(
     status_code=status.HTTP_200_OK,
 )
 async def update_profile(
-        listener_id: str,
-        req: UpdateListenerRequestDto = Body(...),
-        db: DatabaseManager = Depends(get_database),
-        rest: UserClient = Depends(get_restclient_user),
+    listener_id: str,
+    req: UpdateListenerRequestDto = Body(...),
+    db: DatabaseManager = Depends(get_database),
+    rest: UserClient = Depends(get_restclient_user),
 ):
     manager = ListenerManager(db.db)
     try:
@@ -119,7 +135,9 @@ async def update_profile(
         )
         response = await manager.update_profile(id=listener_id, profile=listener)
         if not response:
-            raise HTTPException(status_code=404, detail=f"Listener {listener_id} not found")
+            raise HTTPException(
+                status_code=404, detail=f"Listener {listener_id} not found"
+            )
 
         listener = ListenerModel(**response)
         # update user
@@ -139,7 +157,9 @@ async def update_profile(
     except HTTPException as e:
         raise e
     except Exception as e:
-        raise HTTPException(status_code=400, detail=f"Error updating User. Exception {e}")
+        raise HTTPException(
+            status_code=400, detail=f"Error updating User. Exception {e}"
+        )
 
 
 @router.delete(
