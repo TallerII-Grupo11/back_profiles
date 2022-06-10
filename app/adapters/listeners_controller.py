@@ -1,12 +1,13 @@
 from typing import Optional, List
+from urllib import request
 from fastapi import APIRouter, status, Depends, HTTPException, Body
 from fastapi.responses import JSONResponse
 from app.db import DatabaseManager, get_database
-from app.rest import get_restmultimedia
+from app.rest import get_restclient_multimedia
 from app.db.impl.listener_manager import ListenerManager
 from app.db.model.listener import ListenerModel, UpdateListenerModel
 from app.db.model.listener import CompleteListenerModel
-from app.rest.dtos.playlist import PlaylistRequestDto
+from app.rest.dtos.request.playlist import PlaylistRequestDto
 from app.rest.dtos.song import SongResponseDto
 from app.rest.multimedia_client import MultimediaClient
 import logging
@@ -36,7 +37,7 @@ async def create_profile(
 async def show_profile(
     id: str,
     db: DatabaseManager = Depends(get_database),
-    rest: MultimediaClient = Depends(get_restmultimedia)
+    rest: MultimediaClient = Depends(get_restclient_multimedia)
 ):
     manager = ListenerManager(db.db)
     profile = await manager.get_profile(id=id)
@@ -57,7 +58,7 @@ async def show_profile(
 async def get_profiles(
     user_id: Optional[str] = None,
     db: DatabaseManager = Depends(get_database),
-    rest: MultimediaClient = Depends(get_restmultimedia),
+    rest: MultimediaClient = Depends(get_restclient_multimedia),
 ):
     manager = ListenerManager(db.db)
     profiles = await manager.get_all_profiles(user_id)
@@ -112,7 +113,7 @@ async def create_playlist(
     id: str,
     playlist: PlaylistRequestDto = Body(...),
     db: DatabaseManager = Depends(get_database),
-    rest: MultimediaClient = Depends(get_restmultimedia),
+    rest: MultimediaClient = Depends(get_restclient_multimedia),
 ):
     playlist, playlist_id = rest.create_playlist(playlist)
     logging.info(f"[playlist] {playlist} - {playlist_id}")
@@ -123,14 +124,14 @@ async def create_playlist(
 # RECOMENDATION
 @router.get(
     "/listeners/{id}/recomendations",
-    response_description="Get recomendation of song by listeners interest",
-    #response_model=List[ListenerModel],
+    response_description="Get recomendation of songs by listeners interest",
+    response_model=List[SongResponseDto],
     status_code=status.HTTP_200_OK,
 )
 async def get_recomendations(
-    id: Optional[str] = None,
+    id: str,
     db: DatabaseManager = Depends(get_database),
-    rest: MultimediaClient = Depends(get_restmultimedia),
+    rest: MultimediaClient = Depends(get_restclient_multimedia),
 ):
     manager = ListenerManager(db.db)
     profile = await manager.get_profile(id=id)

@@ -105,7 +105,7 @@ class MultimediaClient:
         self, interests: List[str]
     ) -> List[SongResponseDto]:
         songs_list = []
-        for interest in interests:
+        for genre in interests:
             songs = self.get_songs_by_genre(genre)
             for i in range(5):
                 songs_list.append(songs[i])
