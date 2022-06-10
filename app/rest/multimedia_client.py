@@ -94,3 +94,21 @@ class MultimediaClient:
             f'{self.api_url}/albums/{album_id}/songs', data=json.dumps(song)
         )
         return r.status_code == 200
+
+    def get_songs_by_genre(self, genre: str) -> SongResponseDto:
+        r = httpx.get(f'{self.api_url}/songs?genre={genre}')
+        d = r.json()
+
+        return SongResponseDto(**d)
+
+    def get_recomendation_by_genre(
+        self, interests: List[str]
+    ) -> List[SongResponseDto]:
+        songs_list = []
+        for interest in interests:
+            songs = self.get_songs_by_genre(genre)
+            for i in range(5):
+                songs_list.append(songs[i])
+        return songs_list[:10]
+
+
