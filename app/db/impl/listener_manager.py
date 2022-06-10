@@ -12,15 +12,13 @@ class ListenerManager:
     def __init__(self, db: AsyncIOMotorDatabase):
         self.db = db
 
-    async def get_profile(self, id: str) -> ListenerModel:
+    async def get_profile(self, id: str):
         profile = await self.db["listeners"].find_one({"_id": id})
         return profile
 
     async def get_all_profiles(self, user_id: str) -> List[ListenerModel]:
         if user_id is not None:
-            profiles = (
-                await self.db["listeners"].find_one({"user_id": user_id})
-            )
+            profiles = await self.db["listeners"].find_one({"user_id": user_id})
         else:
             profiles = await self.db["listeners"].find().to_list(100)
 
@@ -35,9 +33,7 @@ class ListenerManager:
         delete_result = await self.db["listeners"].delete_one({"_id": id})
         return delete_result
 
-    async def update_profile(
-        self, id: str, profile: UpdateListenerModel = Body(...)
-    ) -> ListenerModel:
+    async def update_profile(self, id: str, profile: UpdateListenerModel = Body(...)):
         try:
             profile = {k: v for k, v in profile.dict().items() if v is not None}
             await self.db["listeners"].update_one({"_id": id}, {"$set": profile})
@@ -50,10 +46,9 @@ class ListenerManager:
 
     async def create_playlist(self, id: str, playlist_id: str) -> ListenerModel:
         try:
-            await self.db["listeners"]\
-                .update_one({"_id": id},
-                            {"$addToSet": {"playlists": playlist_id}}
-                            )
+            await self.db["listeners"].update_one(
+                {"_id": id}, {"$addToSet": {"playlists": playlist_id}}
+            )
             model = await self.get_profile(id)
             return model
         except Exception as e:

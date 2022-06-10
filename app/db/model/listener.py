@@ -28,7 +28,7 @@ class ListenerModel(BaseModel):
                 "user_id": "id",
                 "interests": ["genre_name"],
                 "playlists": ["playlist_ids"],
-                "subscription": "free"
+                "subscription": "free",
             }
         }
 
@@ -50,7 +50,7 @@ class UpdateListenerModel(BaseModel):
                 "user_id": "id",
                 "interests": ["genre_name"],
                 "playlists": ["playlist_ids"],
-                "subscription": "free"
+                "subscription": "free",
             }
         }
 

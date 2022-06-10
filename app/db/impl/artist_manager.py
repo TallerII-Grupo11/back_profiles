@@ -11,7 +11,7 @@ class ArtistManager:
     def __init__(self, db: AsyncIOMotorDatabase):
         self.db = db
 
-    async def get_profile(self, id: str) -> ArtistModel:
+    async def get_profile(self, id: str):
         profile = await self.db["artists"].find_one({"_id": id})
         return profile
 
@@ -32,9 +32,7 @@ class ArtistManager:
         delete_result = await self.db["artists"].delete_one({"_id": id})
         return delete_result
 
-    async def update_profile(
-        self, id: str, profile: UpdateArtistModel = Body(...)
-    ) -> ArtistModel:
+    async def update_profile(self, id: str, profile: UpdateArtistModel = Body(...)):
         try:
             profile = {k: v for k, v in profile.dict().items() if v is not None}
             await self.db["artists"].update_one({"_id": id}, {"$set": profile})
@@ -47,10 +45,9 @@ class ArtistManager:
 
     async def add_album(self, id: str, album_id: str) -> ArtistModel:
         try:
-            await self.db["artists"]\
-                .update_one({"_id": id},
-                            {"$addToSet": {"albums": album_id}}
-                            )
+            await self.db["artists"].update_one(
+                {"_id": id}, {"$addToSet": {"albums": album_id}}
+            )
             model = await self.get_profile(id)
             return model
         except Exception as e:
@@ -60,10 +57,9 @@ class ArtistManager:
 
     async def add_song(self, id: str, song_id: str) -> ArtistModel:
         try:
-            await self.db["artists"]\
-                .update_one({"_id": id},
-                            {"$addToSet": {"songs": song_id}}
-                            )
+            await self.db["artists"].update_one(
+                {"_id": id}, {"$addToSet": {"songs": song_id}}
+            )
             model = await self.get_profile(id)
             return model
         except Exception as e:

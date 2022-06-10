@@ -1,10 +1,11 @@
-from pydantic.main import BaseModel
 from typing import List
+
+from pydantic.main import BaseModel
+
 from app.rest.dtos.artist import ArtistModel
 
 
-class SongResponseDto(BaseModel):
-    _id: str
+class SongRequestDto(BaseModel):
     title: str
     artists: List[ArtistModel]
     description: str

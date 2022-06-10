@@ -3,17 +3,6 @@ from pydantic.main import BaseModel
 from app.rest.dtos.song import SongResponseDto
 
 
-class PlaylistRequestDto(BaseModel):
-    title: str
-    description: str
-    songs: List[str]
-    is_collaborative: bool
-    owner_id: str
-
-    def __getitem__(self, item):
-        return getattr(self, item)
-
-
 class PlaylistResponseDto(BaseModel):
     _id: str
     title: str

@@ -3,10 +3,12 @@ import json
 import logging
 
 from typing import List
-from app.rest.dtos.album import AlbumResponseDto, AlbumRequestDto, AlbumSongResponseDto
-from app.rest.dtos.playlist import PlaylistResponseDto
-from app.rest.dtos.playlist import PlaylistRequestDto, PlaylistSongResponseDto
-from app.rest.dtos.song import SongResponseDto, SongRequestDto
+from app.rest.dtos.album import AlbumResponseDto, AlbumSongResponseDto
+from app.rest.dtos.request.album import AlbumRequestDto
+from app.rest.dtos.playlist import PlaylistResponseDto, PlaylistSongResponseDto
+from app.rest.dtos.request.playlist import PlaylistRequestDto
+from app.rest.dtos.song import SongResponseDto
+from app.rest.dtos.request.song import SongRequestDto
 
 
 class MultimediaClient:
@@ -89,7 +91,6 @@ class MultimediaClient:
     def add_song_to_album(self, album_id: str, song_id=str) -> bool:
         song = {"songs": [song_id]}
         r = httpx.patch(
-            f'{self.api_url}/albums/{album_id}/songs',
-            data=json.dumps(song)
+            f'{self.api_url}/albums/{album_id}/songs', data=json.dumps(song)
         )
         return r.status_code == 200
