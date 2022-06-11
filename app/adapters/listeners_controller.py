@@ -133,7 +133,9 @@ async def get_profiles(
             listener_model = ListenerModel(**profile)
             user = users_map.get(listener_model.user_id)
             if user:
-                listeners.append(ListenerResponseDto.from_listener_model(listener_model, user))
+                listeners.append(
+                    ListenerResponseDto.from_listener_model(listener_model, user)
+                )
             else:
                 logging.error(f"User with id {listener_model.user_id} not found")
 
