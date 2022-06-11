@@ -15,7 +15,7 @@ class ArtistManager:
         profile = await self.db["artists"].find_one({"_id": id})
         return profile
 
-    async def get_all_profiles(self, user_id: str) -> List[ArtistModel]:
+    async def get_all_profiles(self, user_id: str):
         if user_id is not None:
             profiles = await self.db["artists"].find_one({"user_id": user_id})
         else:

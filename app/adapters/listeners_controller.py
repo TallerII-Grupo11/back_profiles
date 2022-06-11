@@ -104,16 +104,46 @@ async def show_profile(
 @router.get(
     "/listeners",
     response_description="Get all listeners profiles",
-    response_model=List[ListenerModel],
+    response_model=List[ListenerResponseDto],
     status_code=status.HTTP_200_OK,
 )
 async def get_profiles(
-    user_id: Optional[str] = None, db: DatabaseManager = Depends(get_database)
+    user_id: Optional[str] = None,
+    db: DatabaseManager = Depends(get_database),
+    rest_user: UserClient = Depends(get_restclient_user),
 ):
     manager = ListenerManager(db.db)
     profiles = await manager.get_all_profiles(user_id)
 
-    return profiles
+    user_ids = []
+    for profile in profiles:
+        user_ids.append(profile["user_id"])
+
+    logging.info(f"user_ids -> {user_ids}")
+
+    try:
+        users = rest_user.all(','.join(user_ids))
+        users_map = {}
+
+        for user in users:
+            users_map[user.id] = user
+
+        listeners = []
+        for profile in profiles:
+            listener_model = ListenerModel(**profile)
+            user = users_map.get(listener_model.user_id)
+            if user:
+                listeners.append(ListenerResponseDto.from_listener_model(listener_model, user))
+            else:
+                logging.error(f"User with id {listener_model.user_id} not found")
+
+        return listeners
+    except HTTPException as e:
+        raise e
+    except Exception as e:
+        raise HTTPException(
+            status_code=400, detail=f"Error getting Users info. Exception {e}"
+        )
 
 
 @router.put(

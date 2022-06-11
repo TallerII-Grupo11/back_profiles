@@ -16,7 +16,7 @@ class ListenerManager:
         profile = await self.db["listeners"].find_one({"_id": id})
         return profile
 
-    async def get_all_profiles(self, user_id: str) -> List[ListenerModel]:
+    async def get_all_profiles(self, user_id: str):
         if user_id is not None:
             profiles = await self.db["listeners"].find_one({"user_id": user_id})
         else:
