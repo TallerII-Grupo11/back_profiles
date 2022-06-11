@@ -88,6 +88,7 @@ async def show_profile(
         user = rest_user.get(listener.user_id)
         playlists = rest_media.get_playlists(listener.playlists)
         complete_listener_model = CompleteListenerModel(
+            user_id=listener.user_id,
             playlists=playlists,
         )
         dto = CompleteListenerResponseDto.from_models(
