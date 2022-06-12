@@ -26,12 +26,13 @@ router = APIRouter(tags=["artists"])
 @router.post(
     "/artists",
     response_description="Add new artist profile",
-    response_model=ArtistResponseDto,
+    response_model=CompleteArtistResponseDto,
 )
 async def create_profile(
     req: ArtistRequestDto = Body(...),
     db: DatabaseManager = Depends(get_database),
-    rest: UserClient = Depends(get_restclient_user),
+    rest_user: UserClient = Depends(get_restclient_user),
+    rest_media: MultimediaClient = Depends(get_restclient_multimedia),
 ):
     manager = ArtistManager(db.db)
     try:
@@ -43,13 +44,21 @@ async def create_profile(
             location=req.location,
             email=req.email,
         )
-        user = rest.create_user(user_req)
+        user = rest_user.create_user(user_req)
         artist_model = ArtistModel(user_id=user.id, songs=req.songs, albums=req.albums)
 
         created_profile = await manager.add_profile(artist_model)
-        print(f"CREATED_PROFILE {created_profile}")
-        print(f"CREATED_PROFILE_CONVERTED {ArtistModel(**created_profile)}")
-        dto = ArtistResponseDto.from_artist_model(ArtistModel(**created_profile), user)
+
+        albums = rest_media.get_albums(created_profile.albums)
+        songs = rest_media.get_songs(created_profile.songs)
+
+        complete_artist_model = CompleteArtistModel(
+            user_id=user.id,
+            albums=albums,
+            songs=songs,
+        )
+        artist = ArtistModel(**created_profile)
+        dto = CompleteArtistResponseDto.from_models(artist, user, complete_artist_model)
         return JSONResponse(
             status_code=status.HTTP_201_CREATED, content=jsonable_encoder(dto)
         )
@@ -124,7 +133,8 @@ async def update_profile(
     artist_id: str,
     req: UpdateArtistRequestDto = Body(...),
     db: DatabaseManager = Depends(get_database),
-    rest: UserClient = Depends(get_restclient_user),
+    rest_media: MultimediaClient = Depends(get_restclient_multimedia),
+    rest_user: UserClient = Depends(get_restclient_user),
 ):
     manager = ArtistManager(db.db)
     try:
@@ -148,9 +158,17 @@ async def update_profile(
             email=req.email,
             status=req.status,
         )
-        user = rest.update(artist.user_id, user_req)
+        user = rest_user.update(artist.user_id, user_req)
 
-        dto = ArtistResponseDto.from_artist_model(artist, user)
+        albums = rest_media.get_albums(artist.albums)
+        songs = rest_media.get_songs(artist.songs)
+
+        complete_artist_model = CompleteArtistModel(
+            user_id=artist.user_id,
+            albums=albums,
+            songs=songs,
+        )
+        dto = CompleteArtistResponseDto.from_models(artist, user, complete_artist_model)
         return dto
     except HTTPException as e:
         raise e
