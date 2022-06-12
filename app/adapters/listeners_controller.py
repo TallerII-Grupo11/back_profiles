@@ -45,12 +45,22 @@ async def show_profile(
 ):
     manager = ListenerManager(db.db)
     profile = await manager.get_profile(id=id)
-
-    if profile is not None:
-        playlists = rest.get_playlists(profile["playlists"])
-        profile["playlists"] = playlists
-        return CompleteListenerModel(**profile)
-    raise HTTPException(status_code=404, detail=f"Listener's Profile {id} not found")
+    try:
+        listener = ListenerModel(**profile)
+        user = rest_user.get(listener.user_id)
+        playlists = rest_media.get_playlists(listener.playlists)
+        complete_listener_model = CompleteListenerModel(
+            user_id=listener.user_id,
+            playlists=playlists,
+        )
+        dto = CompleteListenerResponseDto.from_models(
+            listener, user, complete_listener_model
+        )
+        return dto
+    except Exception as e:
+        raise HTTPException(
+            status_code=404, detail=f"User data not found. Exception {e}"
+        )
 
 
 @router.get(
