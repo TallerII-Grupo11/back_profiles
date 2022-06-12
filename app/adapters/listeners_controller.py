@@ -72,7 +72,7 @@ async def show_profile(
 @router.get(
     "/listeners",
     response_description="Get all listeners profiles",
-    response_model=List[ListenerResponseDto],
+    response_model=List[CompleteListenerResponseDto],
     status_code=status.HTTP_200_OK,
 )
 async def get_profiles(
@@ -103,7 +103,7 @@ async def get_profiles(
             user = users_map.get(listener_model.user_id)
             if user:
                 listeners.append(
-                    ListenerResponseDto.from_listener_model(listener_model, user)
+                    CompleteListenerResponseDto.from_listener_model(listener_model, user)
                 )
             else:
                 logging.error(f"User with id {listener_model.user_id} not found")
