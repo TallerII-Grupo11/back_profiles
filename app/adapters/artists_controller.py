@@ -1,3 +1,4 @@
+import logging
 from typing import Optional, List
 from fastapi import APIRouter, status, Depends, HTTPException, Body
 from fastapi.responses import JSONResponse
@@ -62,17 +63,46 @@ async def create_profile(
 @router.get(
     "/artists",
     response_description="Get a single artist profile",
-    response_model=List[ArtistModel],
+    response_model=List[ArtistResponseDto],
     status_code=status.HTTP_200_OK,
 )
 async def get_profiles(
     user_id: Optional[str] = None,
     db: DatabaseManager = Depends(get_database),
+    rest_user: UserClient = Depends(get_restclient_user),
 ):
     manager = ArtistManager(db.db)
     profiles = await manager.get_all_profiles(user_id)
 
-    return profiles
+    user_ids = []
+    for profile in profiles:
+        user_ids.append(profile["user_id"])
+
+    logging.info(f"user_ids -> {user_ids}")
+
+    try:
+        users = rest_user.all(','.join(user_ids))
+        users_map = {}
+
+        for user in users:
+            users_map[user.id] = user
+
+        artists = []
+        for profile in profiles:
+            artist_model = ArtistModel(**profile)
+            user = users_map.get(artist_model.user_id)
+            if user:
+                artists.append(ArtistResponseDto.from_artist_model(artist_model, user))
+            else:
+                logging.error(f"User with id {artist_model.user_id} not found")
+
+        return artists
+    except HTTPException as e:
+        raise e
+    except Exception as e:
+        raise HTTPException(
+            status_code=400, detail=f"Error getting Users info. Exception {e}"
+        )
 
 
 @router.get(
