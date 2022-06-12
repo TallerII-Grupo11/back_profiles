@@ -9,6 +9,8 @@ from app.db.model.listener import CompleteListenerResponseDto
 from app.rest.dtos.request.playlist import PlaylistRequestDto
 from app.rest.dtos.song import SongResponseDto
 from app.rest.multimedia_client import MultimediaClient
+from app.rest.users_client import UserClient
+
 import logging
 
 router = APIRouter(tags=["listeners"])
@@ -29,14 +31,16 @@ async def create_profile(
     if profile is not None:
         playlists = rest_media.get_playlists(profile["playlists"])
         profile["playlists"] = playlists
-        created_profile = CompleteListenerModel(**profile)
-        return JSONResponse(status_code=status.HTTP_201_CREATED, content=created_profile)
+        created_profile = CompleteListenerResponseDto(**profile)
+        return JSONResponse(
+            status_code=status.HTTP_201_CREATED, content=created_profile
+        )
 
 
 @router.get(
     "/listeners/{id}",
     response_description="Get a single listener profile",
-    response_model=CompleteListenerModel,
+    response_model=CompleteListenerResponseDto,
     status_code=status.HTTP_200_OK,
 )
 async def show_profile(
@@ -51,7 +55,7 @@ async def show_profile(
         listener = ListenerModel(**profile)
         user = rest_user.get(listener.user_id)
         playlists = rest_media.get_playlists(listener.playlists)
-        complete_listener_model = CompleteListenerModel(
+        complete_listener_model = CompleteListenerResponseDto(
             user_id=listener.user_id,
             playlists=playlists,
         )
@@ -99,7 +103,7 @@ async def update_profile(
         if profile is not None:
             playlists = rest_media.get_playlists(profile["playlists"])
             profile["playlists"] = playlists
-            return CompleteListenerModel(**profile)
+            return CompleteListenerResponseDto(**profile)
         raise HTTPException(status_code=404, detail=f"Listener {id} not found")
 
     except Exception as e:
