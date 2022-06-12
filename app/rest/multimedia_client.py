@@ -110,5 +110,3 @@ class MultimediaClient:
             for i in range(5):
                 songs_list.append(songs[i])
         return songs_list[:10]
-
-

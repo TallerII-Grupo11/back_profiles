@@ -1,12 +1,11 @@
 from typing import Optional, List
-from urllib import request
 from fastapi import APIRouter, status, Depends, HTTPException, Body
 from fastapi.responses import JSONResponse
 from app.db import DatabaseManager, get_database
-from app.rest import get_restclient_multimedia
+from app.rest import get_restclient_user, get_restclient_multimedia
 from app.db.impl.listener_manager import ListenerManager
 from app.db.model.listener import ListenerModel, UpdateListenerModel
-from app.db.model.listener import CompleteListenerModel
+from app.db.model.listener import CompleteListenerResponseDto
 from app.rest.dtos.request.playlist import PlaylistRequestDto
 from app.rest.dtos.song import SongResponseDto
 from app.rest.multimedia_client import MultimediaClient
@@ -21,12 +20,14 @@ router = APIRouter(tags=["listeners"])
     response_model=ListenerModel,
 )
 async def create_profile(
-    listener: ListenerModel = Body(...), db: DatabaseManager = Depends(get_database)
+    listener: ListenerModel = Body(...),
+    db: DatabaseManager = Depends(get_database),
+    rest_media: MultimediaClient = Depends(get_restclient_multimedia)
 ):
     manager = ListenerManager(db.db)
     profile = await manager.add_profile(listener)
     if profile is not None:
-        playlists = rest.get_playlists(profile["playlists"])
+        playlists = rest_media.get_playlists(profile["playlists"])
         profile["playlists"] = playlists
         created_profile = CompleteListenerModel(**profile)
         return JSONResponse(status_code=status.HTTP_201_CREATED, content=created_profile)
@@ -41,7 +42,8 @@ async def create_profile(
 async def show_profile(
     id: str,
     db: DatabaseManager = Depends(get_database),
-    rest: MultimediaClient = Depends(get_restclient_multimedia)
+    rest_media: MultimediaClient = Depends(get_restclient_multimedia),
+    rest_user: UserClient = Depends(get_restclient_user),
 ):
     manager = ListenerManager(db.db)
     profile = await manager.get_profile(id=id)
@@ -72,7 +74,7 @@ async def show_profile(
 async def get_profiles(
     user_id: Optional[str] = None,
     db: DatabaseManager = Depends(get_database),
-    rest: MultimediaClient = Depends(get_restclient_multimedia),
+    rest_media: MultimediaClient = Depends(get_restclient_multimedia),
 ):
     manager = ListenerManager(db.db)
     profiles = await manager.get_all_profiles(user_id)
@@ -89,12 +91,13 @@ async def update_profile(
     id: str,
     listener: UpdateListenerModel = Body(...),
     db: DatabaseManager = Depends(get_database),
+    rest_media: MultimediaClient = Depends(get_restclient_multimedia)
 ):
     manager = ListenerManager(db.db)
     try:
         profile = await manager.update_profile(id=id, profile=listener)
         if profile is not None:
-            playlists = rest.get_playlists(profile["playlists"])
+            playlists = rest_media.get_playlists(profile["playlists"])
             profile["playlists"] = playlists
             return CompleteListenerModel(**profile)
         raise HTTPException(status_code=404, detail=f"Listener {id} not found")
@@ -129,13 +132,14 @@ async def create_playlist(
     id: str,
     playlist: PlaylistRequestDto = Body(...),
     db: DatabaseManager = Depends(get_database),
-    rest: MultimediaClient = Depends(get_restclient_multimedia),
+    rest_media: MultimediaClient = Depends(get_restclient_multimedia),
 ):
-    playlist, playlist_id = rest.create_playlist(playlist)
+    playlist, playlist_id = rest_media.create_playlist(playlist)
     logging.info(f"[playlist] {playlist} - {playlist_id}")
     manager = ListenerManager(db.db)
     response = await manager.create_playlist(id=id, playlist_id=playlist_id)
     return JSONResponse(status_code=status.HTTP_201_CREATED, content=response)
+
 
 # RECOMENDATION
 @router.get(
@@ -147,10 +151,10 @@ async def create_playlist(
 async def get_recomendations(
     id: str,
     db: DatabaseManager = Depends(get_database),
-    rest: MultimediaClient = Depends(get_restclient_multimedia),
+    rest_media: MultimediaClient = Depends(get_restclient_multimedia),
 ):
     manager = ListenerManager(db.db)
     profile = await manager.get_profile(id=id)
-    songs = rest.get_recomendation_by_genre(profile["interests"])
+    songs = rest_media.get_recomendation_by_genre(profile["interests"])
 
     return songs
