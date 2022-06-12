@@ -24,8 +24,12 @@ async def create_profile(
     listener: ListenerModel = Body(...), db: DatabaseManager = Depends(get_database)
 ):
     manager = ListenerManager(db.db)
-    created_profile = await manager.add_profile(listener)
-    return JSONResponse(status_code=status.HTTP_201_CREATED, content=created_profile)
+    profile = await manager.add_profile(listener)
+    if profile is not None:
+        playlists = rest.get_playlists(profile["playlists"])
+        profile["playlists"] = playlists
+        created_profile = CompleteListenerModel(**profile)
+        return JSONResponse(status_code=status.HTTP_201_CREATED, content=created_profile)
 
 
 @router.get(
@@ -78,9 +82,11 @@ async def update_profile(
 ):
     manager = ListenerManager(db.db)
     try:
-        response = await manager.update_profile(id=id, profile=listener)
-        if response:
-            return response
+        profile = await manager.update_profile(id=id, profile=listener)
+        if profile is not None:
+            playlists = rest.get_playlists(profile["playlists"])
+            profile["playlists"] = playlists
+            return CompleteListenerModel(**profile)
         raise HTTPException(status_code=404, detail=f"Listener {id} not found")
 
     except Exception as e:
