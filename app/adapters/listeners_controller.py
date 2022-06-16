@@ -1,12 +1,24 @@
 from typing import Optional, List
 from fastapi import APIRouter, status, Depends, HTTPException, Body
 from fastapi.responses import JSONResponse
+from fastapi.encoders import jsonable_encoder
+
+from app.adapters.dtos.listeners import (
+    ListenerResponseDto,
+    UpdateListenerRequestDto,
+    ListenerRequestDto,
+    CompleteListenerResponseDto,
+)
 from app.db import DatabaseManager, get_database
 from app.rest import get_restclient_user, get_restclient_multimedia
 from app.db.impl.listener_manager import ListenerManager
-from app.db.model.listener import ListenerModel, UpdateListenerModel
-from app.db.model.listener import CompleteListenerResponseDto
+from app.db.model.listener import (
+    ListenerModel,
+    UpdateListenerModel,
+    CompleteListenerModel,
+)
 from app.rest.dtos.request.playlist import PlaylistRequestDto
+from app.rest.dtos.request.user import UpdateUserRequestDto, UserRequestDto
 from app.rest.dtos.song import SongResponseDto
 from app.rest.multimedia_client import MultimediaClient
 from app.rest.users_client import UserClient
@@ -19,43 +31,77 @@ router = APIRouter(tags=["listeners"])
 @router.post(
     "/listeners",
     response_description="Add new listener profile",
-    response_model=ListenerModel,
+    response_model=CompleteListenerResponseDto,
 )
 async def create_profile(
-    listener: ListenerModel = Body(...),
+    req: ListenerRequestDto = Body(...),
     db: DatabaseManager = Depends(get_database),
-    rest_media: MultimediaClient = Depends(get_restclient_multimedia)
+    rest_user: UserClient = Depends(get_restclient_user),
+    rest_media: MultimediaClient = Depends(get_restclient_multimedia),
 ):
     manager = ListenerManager(db.db)
-    profile = await manager.add_profile(listener)
-    if profile is not None:
-        playlists = rest_media.get_playlists(profile["playlists"])
-        profile["playlists"] = playlists
-        created_profile = CompleteListenerResponseDto(**profile)
+    try:
+        user_req = UserRequestDto(
+            firebase_id=req.firebase_id,
+            first_name=req.first_name,
+            last_name=req.last_name,
+            role="LISTENER",
+            location=req.location,
+            email=req.email,
+        )
+        user = rest_user.create_user(user_req)
+        listener_model = ListenerModel(
+            user_id=user.id,
+            subscription=req.subscription,
+            interests=req.interests,
+            playlists=req.playlists,
+        )
+
+        created_profile = await manager.add_profile(listener_model)
+        listener = ListenerModel(**created_profile)
+
+        playlists = rest_media.get_playlists(listener_model.playlists)
+        complete_listener_model = CompleteListenerModel(
+            user_id=listener.user_id,
+            playlists=playlists,
+        )
+
+        dto = CompleteListenerResponseDto.from_models(
+            listener, user, complete_listener_model
+        )
         return JSONResponse(
-            status_code=status.HTTP_201_CREATED, content=created_profile
+            status_code=status.HTTP_201_CREATED, content=jsonable_encoder(dto)
+        )
+    except Exception as e:
+        raise HTTPException(
+            status_code=400, detail=f"Could not create User. Exception: {e}"
         )
 
 
 @router.get(
-    "/listeners/{id}",
+    "/listeners/{listener_id}",
     response_description="Get a single listener profile",
     response_model=CompleteListenerResponseDto,
     status_code=status.HTTP_200_OK,
 )
 async def show_profile(
-    id: str,
+    listener_id: str,
     db: DatabaseManager = Depends(get_database),
     rest_media: MultimediaClient = Depends(get_restclient_multimedia),
     rest_user: UserClient = Depends(get_restclient_user),
 ):
     manager = ListenerManager(db.db)
-    profile = await manager.get_profile(id=id)
+    profile = await manager.get_profile(id=listener_id)
+    if profile is None:
+        raise HTTPException(
+            status_code=404, detail=f"Listener's Profile {listener_id} not found"
+        )
+
     try:
         listener = ListenerModel(**profile)
         user = rest_user.get(listener.user_id)
         playlists = rest_media.get_playlists(listener.playlists)
-        complete_listener_model = CompleteListenerResponseDto(
+        complete_listener_model = CompleteListenerModel(
             user_id=listener.user_id,
             playlists=playlists,
         )
@@ -103,7 +149,9 @@ async def get_profiles(
             user = users_map.get(listener_model.user_id)
             if user:
                 listeners.append(
-                    CompleteListenerResponseDto.from_listener_model(listener_model, user)
+                    CompleteListenerResponseDto.from_listener_model(
+                        listener_model, user
+                    )
                 )
             else:
                 logging.error(f"User with id {listener_model.user_id} not found")
@@ -118,27 +166,59 @@ async def get_profiles(
 
 
 @router.put(
-    "/listeners/{id}",
+    "/listeners/{listener_id}",
     response_description="Update a listener's profile",
+    response_model=ListenerResponseDto,
     status_code=status.HTTP_200_OK,
 )
 async def update_profile(
-    id: str,
-    listener: UpdateListenerModel = Body(...),
+    listener_id: str,
+    req: UpdateListenerRequestDto = Body(...),
     db: DatabaseManager = Depends(get_database),
-    rest_media: MultimediaClient = Depends(get_restclient_multimedia)
+    rest_user: UserClient = Depends(get_restclient_user),
+    rest_media: MultimediaClient = Depends(get_restclient_multimedia),
 ):
     manager = ListenerManager(db.db)
     try:
-        profile = await manager.update_profile(id=id, profile=listener)
-        if profile is not None:
-            playlists = rest_media.get_playlists(profile["playlists"])
-            profile["playlists"] = playlists
-            return CompleteListenerResponseDto(**profile)
-        raise HTTPException(status_code=404, detail=f"Listener {id} not found")
+        # update profile
+        listener = UpdateListenerModel(
+            interests=req.interests,
+        )
+        response = await manager.update_profile(id=listener_id, profile=listener)
+        if not response:
+            raise HTTPException(
+                status_code=404, detail=f"Listener {listener_id} not found"
+            )
 
+        listener = ListenerModel(**response)
+        # update user
+        user_req = UpdateUserRequestDto(
+            firebase_id=req.firebase_id,
+            first_name=req.first_name,
+            last_name=req.last_name,
+            role="LISTENER",
+            location=req.location,
+            email=req.email,
+            status=req.status,
+        )
+        user = rest_user.update(listener.user_id, user_req)
+        playlists = rest_media.get_playlists(listener.playlists)
+
+        complete_listener_model = CompleteListenerModel(
+            user_id=listener.user_id,
+            playlists=playlists,
+        )
+
+        dto = CompleteListenerResponseDto.from_models(
+            listener, user, complete_listener_model
+        )
+        return dto
+    except HTTPException as e:
+        raise e
     except Exception as e:
-        raise HTTPException(status_code=404, detail=e)
+        raise HTTPException(
+            status_code=400, detail=f"Error updating User. Exception {e}"
+        )
 
 
 @router.delete(

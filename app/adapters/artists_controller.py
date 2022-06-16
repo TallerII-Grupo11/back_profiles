@@ -156,7 +156,7 @@ async def show_profile(
 @router.put(
     "/artists/{artist_id}",
     response_description="Update an artist's profile",
-    response_model=ArtistResponseDto,
+    response_model=CompleteArtistResponseDto,
     status_code=status.HTTP_200_OK,
 )
 async def update_profile(
