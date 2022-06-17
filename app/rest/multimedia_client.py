@@ -99,7 +99,7 @@ class MultimediaClient:
         r = httpx.get(f'{self.api_url}/songs?genre={genre}')
         logging.debug(f"RECOMENDATION: --> {r}")
         response = r.json()
-        
+
         songs_list = []
         for s in response:
             songs_list.append(SongResponseDto(**s))

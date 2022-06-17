@@ -273,5 +273,5 @@ async def get_recomendations(
         songs = rest_media.get_recomendation_by_genre(profile["interests"])
 
         return songs
-    except:
+    except Exception as e:
         raise HTTPException(status_code=404, detail=f"Listener {listener_id} not found")
