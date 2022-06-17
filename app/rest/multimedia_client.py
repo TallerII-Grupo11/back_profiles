@@ -103,8 +103,8 @@ class MultimediaClient:
 
     def get_recomendation_by_genre(self, interests: List[str]) -> List[SongResponseDto]:
         songs_list = []
-        for genre in interests:
+        for genre in interests[:2]:
             songs = self.get_songs_by_genre(genre)
-            for i in range(5):
+            for i in range(3):
                 songs_list.append(songs[i])
         return songs_list[:10]
