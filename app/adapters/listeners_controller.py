@@ -274,4 +274,6 @@ async def get_recomendations(
 
         return songs
     except Exception as e:
-        raise HTTPException(status_code=404, detail=f"Listener {listener_id} not found. Error info: {e}")
+        raise HTTPException(
+            status_code=404, detail=f"Listener {listener_id} not found. Error: {e}"
+        )
