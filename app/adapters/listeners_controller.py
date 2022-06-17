@@ -239,40 +239,39 @@ async def delete_profile(id: str, db: DatabaseManager = Depends(get_database)):
 
 # MULTIMEDIA
 @router.post(
-    "/listeners/{id}/playlists",
+    "/listeners/{listener_id}/playlists",
     response_description="Create new playlist for listener",
     response_model=ListenerModel,
 )
 async def create_playlist(
-    id: str,
+    listener_id: str,
     playlist: PlaylistRequestDto = Body(...),
     db: DatabaseManager = Depends(get_database),
     rest_media: MultimediaClient = Depends(get_restclient_multimedia),
 ):
     playlist, playlist_id = rest_media.create_playlist(playlist)
-    logging.info(f"[playlist] {playlist} - {playlist_id}")
     manager = ListenerManager(db.db)
-    response = await manager.create_playlist(id=id, playlist_id=playlist_id)
+    response = await manager.create_playlist(id=listener_id, playlist_id=playlist_id)
     return JSONResponse(status_code=status.HTTP_201_CREATED, content=response)
 
 
 # RECOMENDATION
 @router.get(
-    "/listeners/{id}/recomendations",
+    "/listeners/{listener_id}/recomendations",
     response_description="Get recomendation of songs by listeners interest",
     response_model=List[SongResponseDto],
     status_code=status.HTTP_200_OK,
 )
 async def get_recomendations(
-    id: str,
+    listener_id: str,
     db: DatabaseManager = Depends(get_database),
     rest_media: MultimediaClient = Depends(get_restclient_multimedia),
 ):
     try:
         manager = ListenerManager(db.db)
-        profile = await manager.get_profile(id=id)
+        profile = await manager.get_profile(id=listener_id)
         songs = rest_media.get_recomendation_by_genre(profile["interests"])
 
         return songs
     except:
-        raise HTTPException(status_code=404, detail=f"Listener {id} not found")
+        raise HTTPException(status_code=404, detail=f"Listener {listener_id} not found")

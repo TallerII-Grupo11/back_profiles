@@ -226,29 +226,29 @@ async def delete_profile(artist_id: str, db: DatabaseManager = Depends(get_datab
 
 # MULTIMEDIA
 @router.post(
-    "/artists/{id}/albums",
+    "/artists/{artist_id}/albums",
     response_description="Create new album for artist",
     response_model=ArtistModel,
 )
 async def create_album(
-    id: str,
+    artist_id: str,
     album: AlbumRequestDto = Body(...),
     db: DatabaseManager = Depends(get_database),
     rest: MultimediaClient = Depends(get_restclient_multimedia),
 ):
     album, album_id = rest.create_album(album)
     manager = ArtistManager(db.db)
-    response = await manager.add_album(id=id, album_id=album_id)
+    response = await manager.add_album(id=artist_id, album_id=album_id)
     return JSONResponse(status_code=status.HTTP_201_CREATED, content=response)
 
 
 @router.post(
-    "/artists/{id}/albums/{album_id}/songs",
+    "/artists/{artist_id}/albums/{album_id}/songs",
     response_description="Create new song for artist and album",
     response_model=ArtistModel,
 )
 async def create_song(
-    id: str,
+    artist_id: str,
     album_id: str,
     song: SongRequestDto = Body(...),
     db: DatabaseManager = Depends(get_database),
@@ -257,6 +257,6 @@ async def create_song(
     song, song_id = rest.create_song(song)
     if rest.add_song_to_album(album_id, song_id):
         manager = ArtistManager(db.db)
-        response = await manager.add_song(id=id, song_id=song_id)
+        response = await manager.add_song(id=artist_id, song_id=song_id)
         return JSONResponse(status_code=status.HTTP_201_CREATED, content=response)
     raise HTTPException(status_code=404, detail=f"Error add song in album {album_id}")
