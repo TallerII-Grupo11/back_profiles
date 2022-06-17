@@ -95,16 +95,20 @@ class MultimediaClient:
         )
         return r.status_code == 200
 
-    def get_songs_by_genre(self, genre: str) -> SongResponseDto:
+    def get_songs_by_genre(self, genre: str) -> List[SongResponseDto]:
         r = httpx.get(f'{self.api_url}/songs?genre={genre}')
-        d = r.json()
-
-        return SongResponseDto(**d)
+        logging.debug(f"RECOMENDATION: --> {r}")
+        response = r.json()
+        
+        songs_list = []
+        for s in response:
+            songs_list.append(SongResponseDto(**s))
+        return songs_list
 
     def get_recomendation_by_genre(self, interests: List[str]) -> List[SongResponseDto]:
         songs_list = []
         for genre in interests[:2]:
             songs = self.get_songs_by_genre(genre)
-            for i in range(3):
-                songs_list.append(songs[i])
+            for song in songs[:3]:
+                songs_list.append(song)
         return songs_list[:10]

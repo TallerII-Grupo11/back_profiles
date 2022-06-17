@@ -268,8 +268,11 @@ async def get_recomendations(
     db: DatabaseManager = Depends(get_database),
     rest_media: MultimediaClient = Depends(get_restclient_multimedia),
 ):
-    manager = ListenerManager(db.db)
-    profile = await manager.get_profile(id=id)
-    songs = rest_media.get_recomendation_by_genre(profile["interests"])
+    try:
+        manager = ListenerManager(db.db)
+        profile = await manager.get_profile(id=id)
+        songs = rest_media.get_recomendation_by_genre(profile["interests"])
 
-    return songs
+        return songs
+    except:
+        raise HTTPException(status_code=404, detail=f"Listener {id} not found")
