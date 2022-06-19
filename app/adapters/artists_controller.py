@@ -50,8 +50,8 @@ async def create_profile(
 
         created_profile = await manager.add_profile(artist_model)
 
-        albums = rest_media.get_albums(created_profile.albums)
-        songs = rest_media.get_songs(created_profile.songs)
+        albums = rest_media.get_albums(created_profile["albums"])
+        songs = rest_media.get_songs(created_profile["songs"])
 
         complete_artist_model = CompleteArtistModel(
             user_id=user.id,
@@ -137,8 +137,8 @@ async def show_profile(
         artist = ArtistModel(**profile)
         user = rest_user.get(artist.user_id)
 
-        albums = rest_media.get_albums(artist.albums)
-        songs = rest_media.get_songs(artist.songs)
+        albums = rest_media.get_albums(profile["albums"])
+        songs = rest_media.get_songs(profile["songs"])
 
         complete_artist_model = CompleteArtistModel(
             user_id=artist.user_id,
@@ -190,8 +190,8 @@ async def update_profile(
         )
         user = rest_user.update(artist.user_id, user_req)
 
-        albums = rest_media.get_albums(artist.albums)
-        songs = rest_media.get_songs(artist.songs)
+        albums = rest_media.get_albums(artist["albums"])
+        songs = rest_media.get_songs(artist["songs"])
 
         complete_artist_model = CompleteArtistModel(
             user_id=artist.user_id,

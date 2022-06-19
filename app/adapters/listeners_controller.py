@@ -60,7 +60,7 @@ async def create_profile(
         created_profile = await manager.add_profile(listener_model)
         listener = ListenerModel(**created_profile)
 
-        playlists = rest_media.get_playlists(listener_model.playlists)
+        playlists = rest_media.get_playlists(listener_model["playlists"])
         complete_listener_model = CompleteListenerModel(
             user_id=listener.user_id,
             playlists=playlists,
@@ -100,7 +100,7 @@ async def show_profile(
     try:
         listener = ListenerModel(**profile)
         user = rest_user.get(listener.user_id)
-        playlists = rest_media.get_playlists(listener.playlists)
+        playlists = rest_media.get_playlists(listener["playlists"])
         complete_listener_model = CompleteListenerModel(
             user_id=listener.user_id,
             playlists=playlists,
@@ -146,15 +146,21 @@ async def get_profiles(
         listeners = []
         for profile in profiles:
             listener_model = ListenerModel(**profile)
-            user = users_map.get(listener_model.user_id)
+            user = users_map.get(profile["user_id"])
+
+            playlists = rest_media.get_playlists(profile["playlists"])
+            complete_listener_model = CompleteListenerModel(
+                user_id=profile["user_id"],
+                playlists=playlists,
+            )
             if user:
                 listeners.append(
-                    CompleteListenerResponseDto.from_listener_model(
-                        listener_model, user
+                    CompleteListenerResponseDto.from_models(
+                        listener_model, user, complete_listener_model
                     )
                 )
             else:
-                logging.error(f"User with id {listener_model.user_id} not found")
+                logging.error(f"User with id {profile['user_id']} not found")
 
         return listeners
     except HTTPException as e:
@@ -202,7 +208,7 @@ async def update_profile(
             status=req.status,
         )
         user = rest_user.update(listener.user_id, user_req)
-        playlists = rest_media.get_playlists(listener.playlists)
+        playlists = rest_media.get_playlists(listener["playlists"])
 
         complete_listener_model = CompleteListenerModel(
             user_id=listener.user_id,
