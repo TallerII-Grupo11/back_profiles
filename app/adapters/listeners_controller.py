@@ -207,11 +207,11 @@ async def update_profile(
             email=req.email,
             status=req.status,
         )
-        user = rest_user.update(listener.user_id, user_req)
+        user = rest_user.update(listener["user_id"], user_req)
         playlists = rest_media.get_playlists(listener["playlists"])
 
         complete_listener_model = CompleteListenerModel(
-            user_id=listener.user_id,
+            user_id=listener["user_id"],
             playlists=playlists,
         )
 
