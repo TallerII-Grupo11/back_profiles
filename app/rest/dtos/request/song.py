@@ -10,6 +10,7 @@ class SongRequestDto(BaseModel):
     artists: List[ArtistModel]
     description: str
     song_file: str
+    genre: str
 
     def __getitem__(self, item):
         return getattr(self, item)

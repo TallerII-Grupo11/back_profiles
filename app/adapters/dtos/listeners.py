@@ -14,7 +14,9 @@ class ListenerRequestDto(BaseModel):
     first_name: str = Field(example="Juan")
     last_name: str = Field(example="Perez")
     location: Optional[str] = Field(example="Argentina")
+    subscription: str = Field(default="free", example="free")
     interests: List[str] = []
+    playlists: List[str] = []
 
     class Config:
         allow_population_by_field_name = True
