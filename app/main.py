@@ -4,6 +4,7 @@ import logging.config
 
 from app.adapters import listeners_controller
 from app.adapters import artists_controller
+from app.adapters import health_controller
 from app.conf.config import Settings
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
@@ -18,6 +19,7 @@ app = FastAPI(version=settings.version, title=settings.title)
 
 app.include_router(listeners_controller.router)
 app.include_router(artists_controller.router)
+app.include_router(health_controller.router)
 
 origins = ["*"]
 
