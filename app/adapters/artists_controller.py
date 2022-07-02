@@ -190,8 +190,8 @@ async def update_profile(
         )
         user = rest_user.update(artist.user_id, user_req)
 
-        albums = rest_media.get_albums(artist["albums"])
-        songs = rest_media.get_songs(artist["songs"])
+        albums = rest_media.get_albums(artist.albums)
+        songs = rest_media.get_songs(artist.songs)
 
         complete_artist_model = CompleteArtistModel(
             user_id=artist.user_id,
