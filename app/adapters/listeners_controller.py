@@ -5,7 +5,6 @@ from fastapi.encoders import jsonable_encoder
 import traceback
 
 from app.adapters.dtos.listeners import (
-    ListenerResponseDto,
     UpdateListenerRequestDto,
     ListenerRequestDto,
     CompleteListenerResponseDto,
@@ -258,21 +257,48 @@ async def create_playlist(
     rest_media: MultimediaClient = Depends(get_restclient_multimedia),
     rest_user: UserClient = Depends(get_restclient_user),
 ):
-    playlist, playlist_id = rest_media.create_playlist(playlist)
-    manager = ListenerManager(db.db)
+    try:
+        playlist, playlist_id = rest_media.create_playlist(playlist)
+    except Exception as e:
+        raise HTTPException(
+            status_code=400, detail=f"Could not create playlist. Exception {e}"
+        )
 
-    listener = await manager.create_playlist(id=listener_id, playlist_id=playlist_id)
-    user = rest_user.get(listener.user_id)
-    playlists = rest_media.get_playlists(listener["playlists"])
-    complete_listener_model = CompleteListenerModel(
-        user_id=listener.user_id,
-        playlists=playlists,
-    )
-    dto = CompleteListenerResponseDto.from_models(
-        listener, user, complete_listener_model, listener_id
-    )
-    # return dto
-    return JSONResponse(status_code=status.HTTP_201_CREATED, content=dto)
+    manager = ListenerManager(db.db)
+    try:
+        listener = await manager.create_playlist(
+            id=listener_id, playlist_id=playlist_id
+        )
+        if not listener:
+            raise HTTPException(
+                status_code=400,
+                detail=f"Listener {listener_id} could not be updated with playlist",
+            )
+
+        listener_model = ListenerModel(**listener)
+
+        # api calls
+        user = rest_user.get(listener_model.user_id)
+        playlists = rest_media.get_playlists(listener_model.playlists)
+
+        complete_listener_model = CompleteListenerModel(
+            user_id=listener_model.user_id,
+            playlists=playlists,
+        )
+        dto = CompleteListenerResponseDto.from_models(
+            listener_model,
+            user,
+            complete_listener_model,
+        )
+
+        return JSONResponse(
+            status_code=status.HTTP_201_CREATED, content=jsonable_encoder(dto)
+        )
+    except Exception as e:
+        print(traceback.print_exc())
+        raise HTTPException(
+            status_code=400, detail=f"Error getting user/playlist info. Exception {e}"
+        )
 
 
 # RECOMMENDATION
