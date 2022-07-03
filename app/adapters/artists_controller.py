@@ -228,35 +228,106 @@ async def delete_profile(artist_id: str, db: DatabaseManager = Depends(get_datab
 @router.post(
     "/artists/{artist_id}/albums",
     response_description="Create new album for artist",
-    response_model=ArtistModel,
+    response_model=CompleteArtistResponseDto,
 )
 async def create_album(
     artist_id: str,
     album: AlbumRequestDto = Body(...),
     db: DatabaseManager = Depends(get_database),
-    rest: MultimediaClient = Depends(get_restclient_multimedia),
+    rest_media: MultimediaClient = Depends(get_restclient_multimedia),
+    rest_user: UserClient = Depends(get_restclient_user),
 ):
-    album, album_id = rest.create_album(album)
+    try:
+        album, album_id = rest_media.create_album(album)
+    except Exception as e:
+        raise HTTPException(
+            status_code=400, detail=f"Error creating album. Exception {e}"
+        )
+
     manager = ArtistManager(db.db)
-    response = await manager.add_album(id=artist_id, album_id=album_id)
-    return JSONResponse(status_code=status.HTTP_201_CREATED, content=response)
+    try:
+        artist = await manager.add_album(id=artist_id, album_id=album_id)
+        if not artist:
+            raise HTTPException(
+                status_code=404, detail=f"Artist {artist_id} could not be updated"
+            )
+
+        artist_model = ArtistModel(**artist)
+
+        # api calls
+        user = rest_user.get(artist_model.user_id)
+        albums = rest_media.get_albums(artist_model.albums)
+        songs = rest_media.get_songs(artist_model.songs)
+
+        complete_artist_model = CompleteArtistModel(
+            user_id=artist_model.user_id,
+            albums=albums,
+            songs=songs,
+        )
+        dto = CompleteArtistResponseDto.from_models(
+            artist_model, user, complete_artist_model
+        )
+        return JSONResponse(
+            status_code=status.HTTP_201_CREATED, content=jsonable_encoder(dto)
+        )
+    except Exception as e:
+        raise HTTPException(
+            status_code=404, detail=f"Error getting user/album/song info. Exception {e}"
+        )
 
 
 @router.post(
     "/artists/{artist_id}/albums/{album_id}/songs",
     response_description="Create new song for artist and album",
-    response_model=ArtistModel,
+    response_model=CompleteArtistResponseDto,
 )
 async def create_song(
     artist_id: str,
     album_id: str,
     song: SongRequestDto = Body(...),
     db: DatabaseManager = Depends(get_database),
-    rest: MultimediaClient = Depends(get_restclient_multimedia),
+    rest_media: MultimediaClient = Depends(get_restclient_multimedia),
+    rest_user: UserClient = Depends(get_restclient_user),
 ):
-    song, song_id = rest.create_song(song)
-    if rest.add_song_to_album(album_id, song_id):
-        manager = ArtistManager(db.db)
-        response = await manager.add_song(id=artist_id, song_id=song_id)
-        return JSONResponse(status_code=status.HTTP_201_CREATED, content=response)
-    raise HTTPException(status_code=404, detail=f"Error add song in album {album_id}")
+    try:
+        song, song_id = rest_media.create_song(song)
+        success = rest_media.add_song_to_album(album_id, song_id)
+    except Exception as e:
+        raise HTTPException(
+            status_code=400,
+            detail=f"Could not create song or add to album. Exception {e}",
+        )
+
+    if not success:
+        raise HTTPException(
+            status_code=404, detail=f"Error add song in album {album_id}"
+        )
+
+    manager = ArtistManager(db.db)
+    try:
+        artist = await manager.add_song(id=artist_id, song_id=song_id)
+        if not artist:
+            raise HTTPException(
+                status_code=400, detail=f"Artist {artist_id} could not be updated"
+            )
+
+        artist_model = ArtistModel(**artist)
+
+        # api calls
+        user = rest_user.get(artist_model.user_id)
+        albums = rest_media.get_albums(artist_model.albums)
+        songs = rest_media.get_songs(artist_model.songs)
+
+        complete_artist_model = CompleteArtistModel(
+            user_id=artist_model.user_id,
+            albums=albums,
+            songs=songs,
+        )
+        dto = CompleteArtistResponseDto.from_models(
+            artist_model, user, complete_artist_model
+        )
+        return dto
+    except Exception as e:
+        raise HTTPException(
+            status_code=404, detail=f"Error getting user/album/song info. Exception {e}"
+        )

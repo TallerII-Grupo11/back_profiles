@@ -42,7 +42,7 @@ class ArtistManager:
             logging.error(msg)
             raise RuntimeError(msg)
 
-    async def add_album(self, id: str, album_id: str) -> ArtistModel:
+    async def add_album(self, id: str, album_id: str):
         try:
             await self.db["artists"].update_one(
                 {"_id": id}, {"$addToSet": {"albums": album_id}}
@@ -54,7 +54,7 @@ class ArtistManager:
             logging.error(msg)
             raise RuntimeError(msg)
 
-    async def add_song(self, id: str, song_id: str) -> ArtistModel:
+    async def add_song(self, id: str, song_id: str):
         try:
             await self.db["artists"].update_one(
                 {"_id": id}, {"$addToSet": {"songs": song_id}}

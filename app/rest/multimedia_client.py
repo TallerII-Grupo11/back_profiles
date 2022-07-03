@@ -16,13 +16,20 @@ class MultimediaClient:
         self.api_url = api_url
 
     def create_album(self, request: AlbumRequestDto) -> (AlbumResponseDto, str):
-        r = httpx.post(f'{self.api_url}/albums', data=json.dumps(request.dict()))
+        r = httpx.post(f'{self.api_url}/albums', json=request.dict())
+
+        if r.status_code != httpx.codes.CREATED:
+            r.raise_for_status()
+
         d = r.json()
         logging.info(f"[album] {d}")
         return AlbumResponseDto(**d), d["_id"]
 
     def create_song(self, request: SongRequestDto) -> (SongResponseDto, str):
-        r = httpx.post(f'{self.api_url}/songs', data=json.dumps(request.dict()))
+        r = httpx.post(f'{self.api_url}/songs', json=request.dict())
+        if r.status_code != httpx.codes.CREATED:
+            r.raise_for_status()
+
         d = r.json()
 
         return SongResponseDto(**d), d["_id"]
@@ -30,19 +37,29 @@ class MultimediaClient:
     def create_playlist(
         self, request: PlaylistRequestDto
     ) -> (PlaylistResponseDto, str):
-        r = httpx.post(f'{self.api_url}/playlists/', data=json.dumps(request.dict()))
+        r = httpx.post(f'{self.api_url}/playlists/', json=request.dict())
+
+        if r.status_code != httpx.codes.CREATED:
+            r.raise_for_status()
+
         d = r.json()
         logging.info(f"[PLAYLIST JSON] {d}")
         return PlaylistResponseDto(**d), d["_id"]
 
     def get_song(self, song_id: str) -> SongResponseDto:
         r = httpx.get(f'{self.api_url}/songs/{song_id}')
+        if r.status_code != httpx.codes.OK:
+            r.raise_for_status()
+
         d = r.json()
 
         return SongResponseDto(**d)
 
     def get_album(self, album_id: str) -> AlbumSongResponseDto:
         r = httpx.get(f'{self.api_url}/albums/{album_id}')
+        if r.status_code != httpx.codes.OK:
+            r.raise_for_status()
+
         s = r.json()
         songs_list = self.get_songs(s["songs"])
 
@@ -54,6 +71,9 @@ class MultimediaClient:
 
     def get_playlist(self, playlist_id: str) -> PlaylistSongResponseDto:
         r = httpx.get(f'{self.api_url}/playlists/{playlist_id}')
+        if r.status_code != httpx.codes.OK:
+            r.raise_for_status()
+
         s = r.json()
         songs_list = self.get_songs(s["songs"])
 
@@ -66,16 +86,23 @@ class MultimediaClient:
     def get_songs(self, songs: List[str]) -> List[SongResponseDto]:
         songs_list = []
         for song_id in songs:
-            s = self.get_song(song_id)
-            songs_list.append(s)
+            try:
+                s = self.get_song(song_id)
+                songs_list.append(s)
+            except Exception as e:
+                logging.error(f"Error getting song {song_id}. Exception {e}")
+
         return songs_list
 
     def get_playlists(self, playlist_ids: List[str]) -> List[PlaylistSongResponseDto]:
         list_playlists = []
 
         for playlist_id in playlist_ids:
-            play = self.get_playlist(playlist_id)
-            list_playlists.append(play)
+            try:
+                play = self.get_playlist(playlist_id)
+                list_playlists.append(play)
+            except Exception as e:
+                logging.error(f"Error getting playlist {playlist_id}. Exception {e}")
 
         return list_playlists
 
@@ -97,7 +124,10 @@ class MultimediaClient:
 
     def get_songs_by_genre(self, genre: str) -> List[SongResponseDto]:
         r = httpx.get(f'{self.api_url}/songs?genre={genre}')
-        logging.debug(f"RECOMENDATION: --> {r}")
+        if r.status_code != httpx.codes.OK:
+            r.raise_for_status()
+
+        logging.debug(f"RECOMMENDATION: --> {r}")
         response = r.json()
 
         songs_list = []

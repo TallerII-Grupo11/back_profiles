@@ -44,7 +44,7 @@ class ListenerManager:
             logging.error(msg)
             raise RuntimeError(msg)
 
-    async def create_playlist(self, id: str, playlist_id: str) -> ListenerModel:
+    async def create_playlist(self, id: str, playlist_id: str):
         try:
             await self.db["listeners"].update_one(
                 {"_id": id}, {"$addToSet": {"playlists": playlist_id}}
