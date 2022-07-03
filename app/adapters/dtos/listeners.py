@@ -82,7 +82,7 @@ class CompleteListenerResponseDto(ListenerResponseDto):
         complete_listener_model: CompleteListenerModel,
         listener_id=None
     ) -> "CompleteListenerResponseDto":
-        if listener_id == None:
+        if listener_id is None:
             listener_id = listener_model.id
         return CompleteListenerResponseDto(
             id=str(listener_id),

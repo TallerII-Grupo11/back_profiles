@@ -82,7 +82,7 @@ class CompleteArtistResponseDto(ArtistResponseDto):
         complete_artist_model: CompleteArtistModel,
         artist_id=None
     ) -> "CompleteArtistResponseDto":
-        if artist_id == None:
+        if artist_id is None:
             artist_id = artist_model.id
         return CompleteArtistResponseDto(
             id=str(artist_id),

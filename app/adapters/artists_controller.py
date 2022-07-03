@@ -252,8 +252,8 @@ async def create_album(
     dto = CompleteArtistResponseDto.from_models(
         artist, user, complete_artist_model, artist_id
     )
-    return dto 
-    #return JSONResponse(status_code=status.HTTP_201_CREATED, content=album)
+    return dto
+    # return JSONResponse(status_code=status.HTTP_201_CREATED, content=album)
 
 
 @router.post(
@@ -286,6 +286,6 @@ async def create_song(
         dto = CompleteArtistResponseDto.from_models(
             artist, user, complete_artist_model, artist_id
         )
-        return dto 
-        #return JSONResponse(status_code=status.HTTP_201_CREATED, content=response)
+        return dto
+        # return JSONResponse(status_code=status.HTTP_201_CREATED, content=response)
     raise HTTPException(status_code=404, detail=f"Error add song in album {album_id}")
