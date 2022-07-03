@@ -241,8 +241,8 @@ async def create_album(
     manager = ArtistManager(db.db)
     artist = await manager.add_album(id=artist_id, album_id=album_id)
     user = rest_user.get(artist.user_id)
-    albums = rest_media.get_albums(profile["albums"])
-    songs = rest_media.get_songs(profile["songs"])
+    albums = rest_media.get_albums(artist["albums"])
+    songs = rest_media.get_songs(artist["songs"])
 
     complete_artist_model = CompleteArtistModel(
         user_id=artist.user_id,
@@ -275,8 +275,8 @@ async def create_song(
         artist = await manager.add_song(id=artist_id, song_id=song_id)
         user = rest_user.get(artist.user_id)
 
-        albums = rest_media.get_albums(profile["albums"])
-        songs = rest_media.get_songs(profile["songs"])
+        albums = rest_media.get_albums(artist["albums"])
+        songs = rest_media.get_songs(artist["songs"])
 
         complete_artist_model = CompleteArtistModel(
             user_id=artist.user_id,

@@ -260,11 +260,10 @@ async def create_playlist(
 ):
     playlist, playlist_id = rest_media.create_playlist(playlist)
     manager = ListenerManager(db.db)
-    
+
     listener = await manager.create_playlist(id=listener_id, playlist_id=playlist_id)
     user = rest_user.get(listener.user_id)
     playlists = rest_media.get_playlists(listener["playlists"])
-    logging.info(playlists)
     complete_listener_model = CompleteListenerModel(
         user_id=listener.user_id,
         playlists=playlists,
@@ -272,7 +271,7 @@ async def create_playlist(
     dto = CompleteListenerResponseDto.from_models(
         listener, user, complete_listener_model, listener_id
     )
-    #return dto
+    # return dto
     return JSONResponse(status_code=status.HTTP_201_CREATED, content=dto)
 
 
