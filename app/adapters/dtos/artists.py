@@ -80,12 +80,9 @@ class CompleteArtistResponseDto(ArtistResponseDto):
         artist_model: ArtistModel,
         user: UserResponseDto,
         complete_artist_model: CompleteArtistModel,
-        artist_id=None
     ) -> "CompleteArtistResponseDto":
-        if artist_id is None:
-            artist_id = artist_model.id
         return CompleteArtistResponseDto(
-            id=str(artist_id),
+            id=str(artist_model.id),
             user_id=user.id,
             firebase_id=user.firebase_id,
             email=user.email,
