@@ -80,9 +80,12 @@ class CompleteListenerResponseDto(ListenerResponseDto):
         listener_model: ListenerModel,
         user: UserResponseDto,
         complete_listener_model: CompleteListenerModel,
+        listener_id=None
     ) -> "CompleteListenerResponseDto":
+        if listener_id == None:
+            listener_id = listener_model.id
         return CompleteListenerResponseDto(
-            id=str(listener_model.id),
+            id=str(listener_id),
             user_id=user.id,
             firebase_id=user.firebase_id,
             email=user.email,

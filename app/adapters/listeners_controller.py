@@ -176,7 +176,7 @@ async def get_profiles(
 @router.put(
     "/listeners/{listener_id}",
     response_description="Update a listener's profile",
-    response_model=ListenerResponseDto,
+    response_model=CompleteListenerResponseDto,
     status_code=status.HTTP_200_OK,
 )
 async def update_profile(
@@ -249,18 +249,31 @@ async def delete_profile(listener_id: str, db: DatabaseManager = Depends(get_dat
 @router.post(
     "/listeners/{listener_id}/playlists",
     response_description="Create new playlist for listener",
-    response_model=ListenerModel,
+    response_model=CompleteListenerResponseDto,
 )
 async def create_playlist(
     listener_id: str,
     playlist: PlaylistRequestDto = Body(...),
     db: DatabaseManager = Depends(get_database),
     rest_media: MultimediaClient = Depends(get_restclient_multimedia),
+    rest_user: UserClient = Depends(get_restclient_user),
 ):
     playlist, playlist_id = rest_media.create_playlist(playlist)
     manager = ListenerManager(db.db)
-    response = await manager.create_playlist(id=listener_id, playlist_id=playlist_id)
-    return JSONResponse(status_code=status.HTTP_201_CREATED, content=response)
+    
+    listener = await manager.create_playlist(id=listener_id, playlist_id=playlist_id)
+    user = rest_user.get(listener.user_id)
+    playlists = rest_media.get_playlists(listener["playlists"])
+    logging.info(playlists)
+    complete_listener_model = CompleteListenerModel(
+        user_id=listener.user_id,
+        playlists=playlists,
+    )
+    dto = CompleteListenerResponseDto.from_models(
+        listener, user, complete_listener_model, listener_id
+    )
+    #return dto
+    return JSONResponse(status_code=status.HTTP_201_CREATED, content=dto)
 
 
 # RECOMMENDATION

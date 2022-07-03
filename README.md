@@ -10,6 +10,7 @@
 
 Run app commands local
 ```
+poetry install
 docker build -t back-profiles .
 docker run -p 5000:5000 --env-file .env back-profiles
 ```
@@ -22,6 +23,7 @@ heroku config:set version="1.0.0"
 heroku config:set title="Back_Profile"
 heroku config:set db_path="mongodb+srv://<user>:<pass>@profiles.a0iq4.mongodb.net/myFirstDatabase?retryWrites=true&w=majority"
 heroku config:set multimedia_api="https://spotifiuby-multimedia.herokuapp.com"
+heroku config:set users_api="https://spotifiuby-back-users.herokuapp.com"
 
 heroku container:push web -a spotifiuby-profiles
 heroku container:release web -a spotifiuby-profiles
