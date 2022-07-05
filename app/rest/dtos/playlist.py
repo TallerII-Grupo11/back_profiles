@@ -4,7 +4,7 @@ from app.rest.dtos.song import SongResponseDto
 
 
 class PlaylistResponseDto(BaseModel):
-    _id: str
+    id: str
     title: str
     description: str
     songs: List[str] = []
@@ -16,7 +16,7 @@ class PlaylistResponseDto(BaseModel):
 
 
 class PlaylistSongResponseDto(BaseModel):
-    _id: str
+    id: str
     title: str
     description: str
     songs: List[SongResponseDto] = []

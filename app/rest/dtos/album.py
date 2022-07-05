@@ -5,7 +5,7 @@ from app.rest.dtos.artist import ArtistModel
 
 
 class AlbumResponseDto(BaseModel):
-    _id: str
+    _d: str
     title: str
     artist: ArtistModel
     description: str
@@ -19,7 +19,7 @@ class AlbumResponseDto(BaseModel):
 
 
 class AlbumSongResponseDto(BaseModel):
-    _id: str
+    id: str
     title: str
     artist: ArtistModel
     description: str

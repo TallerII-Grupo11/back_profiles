@@ -4,7 +4,7 @@ from app.rest.dtos.artist import ArtistModel
 
 
 class SongResponseDto(BaseModel):
-    _id: str
+    id: str
     title: str
     artists: List[ArtistModel]
     description: str

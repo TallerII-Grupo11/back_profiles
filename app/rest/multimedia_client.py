@@ -23,7 +23,7 @@ class MultimediaClient:
 
         d = r.json()
         logging.info(f"[album] {d}")
-        return AlbumResponseDto(**d), d["_id"]
+        return AlbumResponseDto(**d), d["id"]
 
     def create_song(self, request: SongRequestDto) -> (SongResponseDto, str):
         r = httpx.post(f'{self.api_url}/songs', json=request.dict())
@@ -32,7 +32,7 @@ class MultimediaClient:
 
         d = r.json()
 
-        return SongResponseDto(**d), d["_id"]
+        return SongResponseDto(**d), d["id"]
 
     def create_playlist(
         self, request: PlaylistRequestDto
@@ -44,7 +44,7 @@ class MultimediaClient:
 
         d = r.json()
         logging.info(f"[PLAYLIST JSON] {d}")
-        return PlaylistResponseDto(**d), d["_id"]
+        return PlaylistResponseDto(**d), d["id"]
 
     def get_song(self, song_id: str) -> SongResponseDto:
         r = httpx.get(f'{self.api_url}/songs/{song_id}')
