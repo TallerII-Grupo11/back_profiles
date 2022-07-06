@@ -41,6 +41,7 @@ class ListenerResponseDto(BaseModel):
     role: str = Field(example="LISTENER")
     subscription: str = Field(default="free", example="free")
     interests: List[str] = []
+    playlists: List[str] = []
     wallet_addr: str = ""
 
     class Config:
