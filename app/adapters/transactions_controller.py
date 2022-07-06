@@ -1,4 +1,4 @@
-from fastapi import APIRouter, status
+from fastapi import APIRouter, status, Depends, HTTPException, Body
 
 from app.db import DatabaseManager, get_database
 from app.db.impl.transaction_manager import TransactionManager
@@ -15,7 +15,7 @@ router = APIRouter(tags=["transactions"])
 async def get(
     db: DatabaseManager = Depends(get_database),
 ):
-    manager = TransactionsManager(db.db)
+    manager = TransactionManager(db.db)
     try:
         model = await manager.get_all()
         return model
@@ -34,7 +34,7 @@ async def post(
     req: TransactionModel = Body(...),
     db: DatabaseManager = Depends(get_database),
 ):
-    manager = TransactionsManager(db.db)
+    manager = TransactionManager(db.db)
     try:
         model = await manager.add(req)
         return model
@@ -54,7 +54,7 @@ async def update(
     req: UpdateTransactionModel = Body(...),
     db: DatabaseManager = Depends(get_database),
 ):
-    manager = TransactionsManager(db.db)
+    manager = TransactionManager(db.db)
     try:
         model = await manager.update(id, req)
         return model

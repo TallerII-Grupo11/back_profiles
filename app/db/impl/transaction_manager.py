@@ -26,7 +26,7 @@ class TransactionManager:
             model = await self.get(id)
             return model
         except Exception as e:
-            msg = f"[UPDATE_PROFILE] transaction: {transaction} error: {e}"
+            msg = f"[UPDATE_TRANSACTION] transaction: {transaction} error: {e}"
             logging.error(msg)
             raise RuntimeError(msg)
 
