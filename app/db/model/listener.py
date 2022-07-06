@@ -36,7 +36,6 @@ class UpdateListenerModel(BaseModel):
     subscription: Optional[str]
     wallet_addr: Optional[str]
 
-
     class Config:
         arbitrary_types_allowed = True
         json_encoders = {ObjectId: str}
