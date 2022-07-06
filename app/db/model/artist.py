@@ -3,7 +3,6 @@ from pydantic import Field
 from app.rest.dtos.album import AlbumSongResponseDto
 from app.rest.dtos.song import SongResponseDto
 
-
 from pydantic.main import BaseModel
 from typing import List, Optional
 from bson import ObjectId
@@ -15,11 +14,12 @@ class ArtistModel(BaseModel):
     albums: List[str] = []
     songs: List[str] = []
 
+
     class Config:
         allow_population_by_field_name = True
         arbitrary_types_allowed = True
         json_encoders = {ObjectId: str}
-        schema_extra = {"example": {"user_id": "user_id", "albums": [], "songs": []}}
+        schema_extra = {"example": {"user_id": "user_id","albums": [], "songs": []}}
 
 
 class UpdateArtistModel(BaseModel):
