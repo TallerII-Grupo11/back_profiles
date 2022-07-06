@@ -1,7 +1,7 @@
 from fastapi import APIRouter, status
 
 from app.db import DatabaseManager, get_database
-from app.db.impl.transaction_manager import TransactionsManager
+from app.db.impl.transaction_manager import TransactionManager
 from app.db.model.transaction import TransactionModel, UpdateTransactionModel
 
 router = APIRouter(tags=["transactions"])
@@ -17,7 +17,7 @@ async def get(
 ):
     manager = TransactionsManager(db.db)
     try:
-        model = await manager.get()
+        model = await manager.get_all()
         return model
     except Exception as e:
         raise HTTPException(
@@ -36,7 +36,7 @@ async def post(
 ):
     manager = TransactionsManager(db.db)
     try:
-        model = await manager.create(req)
+        model = await manager.add(req)
         return model
     except Exception as e:
         raise HTTPException(
@@ -45,17 +45,18 @@ async def post(
 
 
 @router.put(
-    "/transactions",
+    "/transactions/{id}",
     response_description="Update transaction",
     status_code=status.HTTP_200_OK,
 )
-async def post(
+async def update(
+    id: str,
     req: UpdateTransactionModel = Body(...),
     db: DatabaseManager = Depends(get_database),
 ):
     manager = TransactionsManager(db.db)
     try:
-        model = await manager.update(req)
+        model = await manager.update(id, req)
         return model
     except Exception as e:
         raise HTTPException(
