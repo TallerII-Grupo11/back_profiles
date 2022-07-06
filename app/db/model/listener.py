@@ -13,11 +13,7 @@ class ListenerModel(BaseModel):
     interests: List[str] = []
     playlists: List[str] = []
     subscription: str = "free"
-    #    playlists: List[str] = []
-    #    follow_artists: List[str] = []
-    #    favorite_songs: List[str] = []
-    #    favorite_albums: List[str] = []
-    #    favorite_playlists: List[str] = []
+    wallet_addr: str = ""
 
     class Config:
         allow_population_by_field_name = True
@@ -29,6 +25,7 @@ class ListenerModel(BaseModel):
                 "interests": ["genre_name"],
                 "playlists": ["playlist_ids"],
                 "subscription": "free",
+                "wallet_addr": ""
             }
         }
 
@@ -37,10 +34,7 @@ class UpdateListenerModel(BaseModel):
     interests: Optional[List[str]]
     playlists: Optional[List[str]]
     subscription: Optional[str]
-    #    follow_artist: Optional[str]
-    #    favorite_song: Optional[str]
-    #    favorite_album: Optional[str]
-    #    favorite_playlist: Optional[str]
+    wallet_addr: Optional[str]
 
     class Config:
         arbitrary_types_allowed = True
@@ -51,6 +45,7 @@ class UpdateListenerModel(BaseModel):
                 "interests": ["genre_name"],
                 "playlists": ["playlist_ids"],
                 "subscription": "free",
+                "wallet_addr": ""
             }
         }
 
@@ -61,6 +56,7 @@ class CompleteListenerModel(BaseModel):
     interests: List[str] = []
     playlists: List[PlaylistSongResponseDto] = []
     subscription: str = "free"
+    wallet_addr: str = ""
 
     class Config:
         allow_population_by_field_name = True

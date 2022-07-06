@@ -3,7 +3,6 @@ from pydantic import Field
 from app.rest.dtos.album import AlbumSongResponseDto
 from app.rest.dtos.song import SongResponseDto
 
-
 from pydantic.main import BaseModel
 from typing import List, Optional
 from bson import ObjectId
