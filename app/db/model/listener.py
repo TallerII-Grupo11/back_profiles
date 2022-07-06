@@ -1,6 +1,7 @@
 from app.db.model.py_object_id import PyObjectId
 from pydantic import Field
 from app.rest.dtos.playlist import PlaylistSongResponseDto
+from app.db.model.transaction import TransactionModel
 
 from pydantic.main import BaseModel
 from typing import List, Optional
@@ -13,11 +14,8 @@ class ListenerModel(BaseModel):
     interests: List[str] = []
     playlists: List[str] = []
     subscription: str = "free"
-    #    playlists: List[str] = []
-    #    follow_artists: List[str] = []
-    #    favorite_songs: List[str] = []
-    #    favorite_albums: List[str] = []
-    #    favorite_playlists: List[str] = []
+    wallet_addr: str = ""
+    transactions: List[TransactionModel] = []
 
     class Config:
         allow_population_by_field_name = True
@@ -29,6 +27,15 @@ class ListenerModel(BaseModel):
                 "interests": ["genre_name"],
                 "playlists": ["playlist_ids"],
                 "subscription": "free",
+                "wallet_addr": "wallet_addr",
+                "transactions": [
+                    {
+                        "sender": "wallet_addr",
+                        "receiver": "wallet_addr",
+                        "amount": 3.0,
+                        "date": "name"
+                    }
+                ]
             }
         }
 
@@ -37,10 +44,8 @@ class UpdateListenerModel(BaseModel):
     interests: Optional[List[str]]
     playlists: Optional[List[str]]
     subscription: Optional[str]
-    #    follow_artist: Optional[str]
-    #    favorite_song: Optional[str]
-    #    favorite_album: Optional[str]
-    #    favorite_playlist: Optional[str]
+    wallet_addr: Optional[str]
+    transactions: Optional[List[TransactionModel]]
 
     class Config:
         arbitrary_types_allowed = True
@@ -51,6 +56,15 @@ class UpdateListenerModel(BaseModel):
                 "interests": ["genre_name"],
                 "playlists": ["playlist_ids"],
                 "subscription": "free",
+                "wallet_addr": "wallet_addr",
+                "transactions": [
+                    {
+                        "sender": "wallet_addr",
+                        "receiver": "wallet_addr",
+                        "amount": 3.0,
+                        "date": "name"
+                    }
+                ]
             }
         }
 
@@ -61,6 +75,8 @@ class CompleteListenerModel(BaseModel):
     interests: List[str] = []
     playlists: List[PlaylistSongResponseDto] = []
     subscription: str = "free"
+    wallet_addr: Optional[str]
+    transactions: Optional[List[TransactionModel]]
 
     class Config:
         allow_population_by_field_name = True
