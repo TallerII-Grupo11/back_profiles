@@ -21,7 +21,7 @@ class TransactionModel(BaseModel):
                 "sender": "wallet_addr",
                 "receiver": "wallet_addr",
                 "amount": 3.4,
-                "date": "20/07/2022"
+                "date": "20/07/2022",
             }
         }
 

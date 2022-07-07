@@ -62,11 +62,11 @@ class MultimediaClient:
 
         s = r.json()
         logging.info(s)
-        #songs_list = self.get_songs(s["songs"])
+        # songs_list = self.get_songs(s["songs"])
 
-        #del s["songs"]
+        # del s["songs"]
         album = AlbumSongResponseDto(**s)
-        #album.set_songs(songs_list)
+        # album.set_songs(songs_list)
 
         return album
 
@@ -76,11 +76,11 @@ class MultimediaClient:
             r.raise_for_status()
 
         s = r.json()
-        #songs_list = self.get_songs(s["songs"])
+        # songs_list = self.get_songs(s["songs"])
 
-        #del s["songs"]
+        # del s["songs"]
         playlist = PlaylistSongResponseDto(**s)
-        #playlist.set_songs(songs_list)
+        # playlist.set_songs(songs_list)
 
         return playlist
 
