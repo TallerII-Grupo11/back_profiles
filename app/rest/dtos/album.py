@@ -5,7 +5,7 @@ from app.rest.dtos.artist import ArtistModel
 
 
 class AlbumResponseDto(BaseModel):
-    _d: str
+    id: str
     title: str
     artist: ArtistModel
     description: str
