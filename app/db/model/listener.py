@@ -25,7 +25,7 @@ class ListenerModel(BaseModel):
                 "interests": ["genre_name"],
                 "playlists": ["playlist_ids"],
                 "subscription": "free",
-                "wallet_addr": ""
+                "wallet_addr": "",
             }
         }
 
@@ -45,7 +45,7 @@ class UpdateListenerModel(BaseModel):
                 "interests": ["genre_name"],
                 "playlists": ["playlist_ids"],
                 "subscription": "free",
-                "wallet_addr": ""
+                "wallet_addr": "",
             }
         }
 
