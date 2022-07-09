@@ -190,7 +190,11 @@ async def update_profile(
         # update profile
         listener = UpdateListenerModel(
             interests=req.interests,
+            wallet_addr=req.wallet_addr,
+            subscription=req.subscription,
+            playlists=req.playlists
         )
+        logging.info(f"req log: {req}")
         response = await manager.update_profile(id=listener_id, profile=listener)
         if not response:
             raise HTTPException(
@@ -198,6 +202,7 @@ async def update_profile(
             )
 
         listener = ListenerModel(**response)
+        logging.info(f" check listener {listener}")
         # update user
         user_req = UpdateUserRequestDto(
             firebase_id=req.firebase_id,

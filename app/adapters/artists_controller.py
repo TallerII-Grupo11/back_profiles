@@ -176,7 +176,6 @@ async def update_profile(
         response = await manager.update_profile(id=artist_id, profile=artist)
         if not response:
             raise HTTPException(status_code=404, detail=f"Artist {artist_id} not found")
-
         artist = ArtistModel(**response)
         # update user
         user_req = UpdateUserRequestDto(
