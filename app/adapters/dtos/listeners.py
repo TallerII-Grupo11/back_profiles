@@ -97,5 +97,5 @@ class CompleteListenerResponseDto(ListenerResponseDto):
             interests=listener_model.interests,
             subscription=listener_model.subscription,
             playlists=complete_listener_model.playlists,
-            wallet_addr=complete_listener_model.wallet_addr,
+            wallet_addr=listener_model.wallet_addr,
         )
