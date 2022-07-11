@@ -15,6 +15,7 @@ class ArtistRequestDto(BaseModel):
     first_name: str = Field(example="Juan")
     last_name: str = Field(example="Perez")
     location: Optional[str] = Field(example="Argentina")
+    cover_picture: str = Field(example="image.png")
     songs: List[str] = []
     albums: List[str] = []
 
@@ -38,6 +39,7 @@ class ArtistResponseDto(BaseModel):
     location: Optional[str] = Field(example="Argentina")
     status: Optional[str] = Field(example="ACTIVE")
     role: str = Field(example="ARTIST")
+    cover_picture: str = Field(example="image.png")
     songs: List[str] = []
     albums: List[str] = []
 
@@ -63,12 +65,14 @@ class ArtistResponseDto(BaseModel):
             role=user.role,
             songs=artist_model.songs,
             albums=artist_model.albums,
+            cover_picture=artist_model.cover_picture,
         )
 
 
 class CompleteArtistResponseDto(ArtistResponseDto):
     albums: List[AlbumSongResponseDto] = []
     songs: List[SongResponseDto] = []
+    cover_picture: str = ""
 
     class Config:
         allow_population_by_field_name = True
@@ -93,4 +97,5 @@ class CompleteArtistResponseDto(ArtistResponseDto):
             role=user.role,
             songs=complete_artist_model.songs,
             albums=complete_artist_model.albums,
+            cover_picture=complete_artist_model.cover_picture,
         )

@@ -11,6 +11,7 @@ from bson import ObjectId
 class ArtistModel(BaseModel):
     id: PyObjectId = Field(default_factory=PyObjectId, alias="_id")
     user_id: str = Field(...)
+    cover_picture: str = Field(...)
     albums: List[str] = []
     songs: List[str] = []
 
@@ -18,11 +19,12 @@ class ArtistModel(BaseModel):
         allow_population_by_field_name = True
         arbitrary_types_allowed = True
         json_encoders = {ObjectId: str}
-        schema_extra = {"example": {"user_id": "user_id", "albums": [], "songs": []}}
+        schema_extra = {"example": {"user_id": "user_id", "cover_picture": "image.png", "albums": [], "songs": []}}
 
 
 class UpdateArtistModel(BaseModel):
     user_id: Optional[str]
+    cover_picture: Optional[str]
     albums: Optional[List[str]]
     songs: Optional[List[str]]
 
@@ -32,6 +34,7 @@ class UpdateArtistModel(BaseModel):
         schema_extra = {
             "example": {
                 "user_id": "user_id",
+                "cover_picture": "image.png",
                 "albums": [],
                 "songs": [],
             }
@@ -40,6 +43,7 @@ class UpdateArtistModel(BaseModel):
 
 class CompleteArtistModel(BaseModel):
     user_id: Optional[str]
+    cover_picture: Optional[str]
     albums: Optional[List[AlbumSongResponseDto]]
     songs: Optional[List[SongResponseDto]]
 
@@ -49,6 +53,7 @@ class CompleteArtistModel(BaseModel):
         schema_extra = {
             "example": {
                 "user_id": "user_id",
+                "cover_picture": "image.png",
                 "albums": [],
                 "songs": [],
             }

@@ -46,7 +46,12 @@ async def create_profile(
             email=req.email,
         )
         user = rest_user.create_user(user_req)
-        artist_model = ArtistModel(user_id=user.id, songs=req.songs, albums=req.albums)
+        artist_model = ArtistModel(
+            user_id=user.id,
+            songs=req.songs,
+            albums=req.albums,
+            cover_picture=req.cover_picture
+        )
 
         created_profile = await manager.add_profile(artist_model)
 
@@ -55,6 +60,7 @@ async def create_profile(
 
         complete_artist_model = CompleteArtistModel(
             user_id=user.id,
+            cover_picture=artist_model.cover_picture,
             albums=albums,
             songs=songs,
         )
@@ -142,6 +148,7 @@ async def show_profile(
 
         complete_artist_model = CompleteArtistModel(
             user_id=artist.user_id,
+            cover_picture=artist.cover_picture,
             albums=albums,
             songs=songs,
         )
@@ -170,6 +177,7 @@ async def update_profile(
     try:
         # update profile
         artist = UpdateArtistModel(
+            cover_picture=req.cover_picture,
             songs=req.songs,
             albums=req.albums,
         )
@@ -194,6 +202,7 @@ async def update_profile(
 
         complete_artist_model = CompleteArtistModel(
             user_id=artist.user_id,
+            cover_picture=artist.cover_picture,
             albums=albums,
             songs=songs,
         )
@@ -260,6 +269,7 @@ async def create_album(
 
         complete_artist_model = CompleteArtistModel(
             user_id=artist_model.user_id,
+            cover_picture=artist_model.cover_picture,
             albums=albums,
             songs=songs,
         )
@@ -319,6 +329,7 @@ async def create_song(
 
         complete_artist_model = CompleteArtistModel(
             user_id=artist_model.user_id,
+            cover_picture=artist_model.cover_picture,
             albums=albums,
             songs=songs,
         )
