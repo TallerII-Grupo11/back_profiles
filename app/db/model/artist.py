@@ -19,7 +19,14 @@ class ArtistModel(BaseModel):
         allow_population_by_field_name = True
         arbitrary_types_allowed = True
         json_encoders = {ObjectId: str}
-        schema_extra = {"example": {"user_id": "user_id", "cover_picture": "image.png", "albums": [], "songs": []}}
+        schema_extra = {
+            "example": {
+                "user_id": "user_id",
+                "cover_picture": "image.png",
+                "albums": [],
+                "songs": [],
+            }
+        }
 
 
 class UpdateArtistModel(BaseModel):
