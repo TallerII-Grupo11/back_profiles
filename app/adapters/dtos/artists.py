@@ -97,5 +97,5 @@ class CompleteArtistResponseDto(ArtistResponseDto):
             role=user.role,
             songs=complete_artist_model.songs,
             albums=complete_artist_model.albums,
-            cover_picture=complete_artist_model.cover_picture,
+            cover_picture=artist_model.cover_picture,
         )

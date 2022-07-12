@@ -50,7 +50,6 @@ class UpdateArtistModel(BaseModel):
 
 class CompleteArtistModel(BaseModel):
     user_id: Optional[str]
-    cover_picture: Optional[str]
     albums: Optional[List[AlbumSongResponseDto]]
     songs: Optional[List[SongResponseDto]]
 
@@ -60,7 +59,6 @@ class CompleteArtistModel(BaseModel):
         schema_extra = {
             "example": {
                 "user_id": "user_id",
-                "cover_picture": "image.png",
                 "albums": [],
                 "songs": [],
             }

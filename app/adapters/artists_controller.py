@@ -60,7 +60,6 @@ async def create_profile(
 
         complete_artist_model = CompleteArtistModel(
             user_id=user.id,
-            cover_picture=artist_model.cover_picture,
             albums=albums,
             songs=songs,
         )
@@ -148,7 +147,6 @@ async def show_profile(
 
         complete_artist_model = CompleteArtistModel(
             user_id=artist.user_id,
-            cover_picture=artist.cover_picture,
             albums=albums,
             songs=songs,
         )
@@ -202,7 +200,6 @@ async def update_profile(
 
         complete_artist_model = CompleteArtistModel(
             user_id=artist.user_id,
-            cover_picture=artist.cover_picture,
             albums=albums,
             songs=songs,
         )
@@ -269,7 +266,6 @@ async def create_album(
 
         complete_artist_model = CompleteArtistModel(
             user_id=artist_model.user_id,
-            cover_picture=artist_model.cover_picture,
             albums=albums,
             songs=songs,
         )
@@ -329,7 +325,6 @@ async def create_song(
 
         complete_artist_model = CompleteArtistModel(
             user_id=artist_model.user_id,
-            cover_picture=artist_model.cover_picture,
             albums=albums,
             songs=songs,
         )
