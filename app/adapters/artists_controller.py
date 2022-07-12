@@ -46,7 +46,12 @@ async def create_profile(
             email=req.email,
         )
         user = rest_user.create_user(user_req)
-        artist_model = ArtistModel(user_id=user.id, songs=req.songs, albums=req.albums)
+        artist_model = ArtistModel(
+            user_id=user.id,
+            songs=req.songs,
+            albums=req.albums,
+            cover_picture=req.cover_picture
+        )
 
         created_profile = await manager.add_profile(artist_model)
 
@@ -170,6 +175,7 @@ async def update_profile(
     try:
         # update profile
         artist = UpdateArtistModel(
+            cover_picture=req.cover_picture,
             songs=req.songs,
             albums=req.albums,
         )
