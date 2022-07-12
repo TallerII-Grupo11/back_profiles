@@ -72,7 +72,6 @@ class ArtistResponseDto(BaseModel):
 class CompleteArtistResponseDto(ArtistResponseDto):
     albums: List[AlbumSongResponseDto] = []
     songs: List[SongResponseDto] = []
-    cover_picture: str = ""
 
     class Config:
         allow_population_by_field_name = True
