@@ -5,14 +5,35 @@
 [![Tests](https://github.com/TallerII-Grupo11/back_profiles/actions/workflows/test.yaml/badge.svg)](https://github.com/TallerII-Grupo11/back_profiles/actions/workflows/test.yaml)
 [![Deploy](https://github.com/TallerII-Grupo11/back_profiles/actions/workflows/deploy.yaml/badge.svg)](https://github.com/TallerII-Grupo11/back_profiles/actions/workflows/deploy.yaml)
 
+### Documentation
+
+http://spotifiuby-profiles.herokuapp.com/docs
+
+### Dependencies
+
+- Python 3.9
+- Poetry
+
+Install with:
+```bash
+poetry install
+```
 
 ### Docker
 
 Run app commands local
 ```
-poetry install
 docker build -t back-profiles .
 docker run -p 5000:5000 --env-file .env back-profiles
+```
+
+### Docker-compose
+
+Local MongoDB image built in with Docker image. Use database url already set up in example .env
+
+```bash
+docker-compose build
+docker-compose up
 ```
 
 ### Manual Deploy to Heroku
