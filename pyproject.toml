@@ -28,7 +28,8 @@ pythonpath = [
 
 [tool.coverage.run]
 omit = [
-  "app/adapters/*"
+  "app/adapters/*",
+  "app/main.py"
 ]
 
 [tool.poetry.dev-dependencies]
