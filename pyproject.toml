@@ -26,6 +26,12 @@ pythonpath = [
   "app"
 ]
 
+[tool.coverage.run]
+omit = [
+  "app/adapters/*",
+  "app/main.py"
+]
+
 [tool.poetry.dev-dependencies]
 black = "^22.3.0"
 flake8 = "^4.0.1"
